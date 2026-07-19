@@ -1,3 +1,4 @@
-# open-source-pw-ioi-batch-1
-
-## dfgfdg
+This is my Readme File:
+Name:Omm Prakash Lenka
+LUCKNOW SOT
+BATCH: 7BSOTB1
