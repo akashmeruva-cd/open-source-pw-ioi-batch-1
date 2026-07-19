@@ -23,7 +23,8 @@ I also have a solid DSA foundation — **300+ problems solved** across LeetCode,
 
 ## 💼 Experience
 
-**Frontend Developer Intern — PW LeapX** *(May 2026 – Present, Remote)*
+**Frontend Developer Intern — PW LeapX** _(May 2026 – Present, Remote)_
+
 - Built and optimized 10+ responsive web pages using HTML5, CSS3, JavaScript (ES6+), Flexbox, CSS Grid, and media queries — cutting cross-device layout bugs by ~40%.
 - Implemented search, category, price, and rating filters plus full shopping cart functionality, improving product discoverability.
 - Collaborated in a 4-person agile team using Git & GitHub (feature branching, code reviews); handled cross-browser/cross-device testing.
@@ -45,6 +46,7 @@ I also have a solid DSA foundation — **300+ problems solved** across LeetCode,
 ## 🧩 Featured Projects
 
 ### [FitMatrix — Gym Member Dashboard](https://github.com/GauravDey-SOT-25/Gym-Member-Dashboard)
+
 `HTML5` `CSS3` `JavaScript` `Chart.js` `Node.js`
 [🔗 Live Demo](https://gauravdey-sot-25.github.io/Gym-Member-Dashboard/)
 
@@ -52,7 +54,8 @@ I also have a solid DSA foundation — **300+ problems solved** across LeetCode,
 - Integrated Chart.js interactive analytics with real-time UI updates; optimized Flexbox & CSS Grid layouts across desktop, tablet, and mobile.
 - Architected a modular, component-based frontend for maintainability and parallel team contributions via Git.
 
-### [CodeAI — AI-Powered Coding Assistant](https://github.com/ManishRai-gif/coding_platflorm1) *(Contributor)*
+### [CodeAI — AI-Powered Coding Assistant](https://github.com/ManishRai-gif/coding_platflorm1) _(Contributor)_
+
 `HTML5` `CSS3` `JavaScript` `Judge0 API`
 [🔗 Live Demo](https://code-ai-henna.vercel.app/)
 
@@ -64,9 +67,9 @@ I also have a solid DSA foundation — **300+ problems solved** across LeetCode,
 ## 🎓 Education
 
 **B.Tech — Computer Science & Engineering** | Medhavi Skills University, Gangtok, Sikkim
-*Sept. 2025 – Expected 2029 | SGPA: 8.58*
+_Sept. 2025 – Expected 2029 | SGPA: 8.58_
 
-**Senior Secondary (Class XII)** — 88.8% | Jawahar Navodaya Vidyalaya, Purulia, WB *(2023)*
+**Senior Secondary (Class XII)** — 88.8% | Jawahar Navodaya Vidyalaya, Purulia, WB _(2023)_
 
 ---
 
