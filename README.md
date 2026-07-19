@@ -1,3 +1,7 @@
 # open-source-pw-ioi-batch-1
 
-## dfgfdg
+## Yatharth Singh
+
+- BCA Student
+- Learning Java & Spring Boot
+- Interested in Backend Development
