@@ -24,3 +24,5 @@ These programs help you learn industry practices such as code review, Git workfl
 ## Getting Started
 
 Getting started usually involves exploring project issue trackers, reading contribution guides, and introducing yourself to maintainers. Success in open source programs depends on consistent communication, curiosity, and a willingness to learn from feedback.
+
+- Open Source Batch - 1 PW
