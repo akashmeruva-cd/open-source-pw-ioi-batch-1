@@ -4,7 +4,7 @@ An open-source program tracker for a college batch. Students find class slides,
 submit assignments, check their attendance and ask an AI assistant about their
 own academic data. Faculty and admins run the batch from a separate portal.
 
-Built by ~43 students in 13 teams. If you are one of them, read these two, in
+Built by 13 teams. If you are one of them, read these two, in
 order:
 
 1. **[docs/onboarding.md](docs/onboarding.md)** — running locally, ~15 minutes.
