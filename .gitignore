@@ -28,3 +28,8 @@ test-results/
 
 # Local file storage (STORAGE_DRIVER=local)
 .local-uploads/
+
+# Next.js rewrites this on every `next dev` / `next build`, and writes different
+# contents for each ("This file should not be edited" is in its own header).
+# Tracking it gave every contributor a phantom modified file.
+next-env.d.ts
