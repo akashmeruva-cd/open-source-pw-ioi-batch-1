@@ -9,10 +9,6 @@ import typescript from 'eslint-config-next/typescript'
  * silencing one line with `// eslint-disable-next-line` plus a reason comment is
  * usually the better fix.
  */
-const config = [
-  ...coreWebVitals,
-  ...typescript,
-  { ignores: ['.next/**', 'node_modules/**'] },
-]
+const config = [...coreWebVitals, ...typescript, { ignores: ['.next/**', 'node_modules/**'] }]
 
 export default config

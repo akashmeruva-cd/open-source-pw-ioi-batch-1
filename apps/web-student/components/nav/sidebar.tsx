@@ -22,9 +22,7 @@ export function Sidebar({ role }: { role: Role }) {
             aria-current={active ? 'page' : undefined}
             className={cn(
               'flex items-center gap-2.5 rounded-lg px-3 py-2 text-sm font-medium transition-colors',
-              active
-                ? 'bg-brand/10 text-brand'
-                : 'text-fg-muted hover:bg-surface-2 hover:text-fg',
+              active ? 'bg-brand/10 text-brand' : 'text-fg-muted hover:bg-surface-2 hover:text-fg',
             )}
           >
             <span aria-hidden="true" className="text-xs">

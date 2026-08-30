@@ -61,7 +61,13 @@ export default function RegisterPage() {
       <p className="mt-0.5 text-sm text-fg-muted">Your batch admin will assign your subjects.</p>
 
       <form onSubmit={onSubmit} className="mt-5 space-y-4" noValidate>
-        <Input label="Full name" required value={form.name} onChange={update('name')} error={fieldErrors.name} />
+        <Input
+          label="Full name"
+          required
+          value={form.name}
+          onChange={update('name')}
+          error={fieldErrors.name}
+        />
         <Input
           label="Email"
           type="email"

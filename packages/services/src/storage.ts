@@ -6,14 +6,11 @@
  *   STORAGE_DRIVER=local        writes to `.local-uploads/` and serves the files
  *                               back from this API. The default — no account,
  *                               no keys, nothing to sign up for.
- *   STORAGE_DRIVER=cloudinary   signed direct-to-Cloudinary uploads. What the
+ *   STORAGE_DRIVER=supabase     signed direct-to-Supabase Storage uploads. What the
  *                               deployed environments use.
  *
  * Teams 04, 05 and 09 write against this interface and never learn which driver
- * is running. **The one thing to know:** the local driver is not a perfect
- * stand-in — CDN URLs, transforms and real signed uploads only exercise on
- * Cloudinary. Every PR gets a preview deploy with the real driver, so upload
- * bugs surface at review time rather than in week 8.
+ * is running.
  */
 
 export interface UploadTicket {
@@ -27,7 +24,7 @@ export interface UploadTicket {
 }
 
 export interface StorageDriver {
-  readonly name: 'local' | 'cloudinary'
+  readonly name: 'local' | 'supabase'
   /**
    * Produces everything the browser needs to upload one file. The API never
    * receives the bytes itself — that is true of both drivers.
@@ -45,15 +42,15 @@ export function getStorage(): StorageDriver {
 
   const driver = process.env.STORAGE_DRIVER || 'local'
 
-  if (driver === 'cloudinary') {
-    // Required lazily so a local-only contributor never needs the config.
-    const { createCloudinaryStorage } = require('./storage-cloudinary') as typeof import('./storage-cloudinary')
-    cached = createCloudinaryStorage()
+  if (driver === 'supabase') {
+    const { createSupabaseStorage } =
+      require('./storage-supabase') as typeof import('./storage-supabase')
+    cached = createSupabaseStorage()
   } else if (driver === 'local') {
     const { createLocalStorage } = require('./storage-local') as typeof import('./storage-local')
     cached = createLocalStorage()
   } else {
-    throw new Error(`Unknown STORAGE_DRIVER "${driver}" — expected "local" or "cloudinary".`)
+    throw new Error(`Unknown STORAGE_DRIVER "${driver}" — expected "local" or "supabase".`)
   }
 
   return cached

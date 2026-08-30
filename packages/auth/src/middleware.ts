@@ -1,6 +1,6 @@
 import type { NextFunction, Request, Response } from 'express'
 import type { Role } from '@repo/validation/enums'
-import { verifyAccessToken, type AccessTokenPayload } from './jwt'
+import { parseAccessToken, type AccessTokenPayload } from './jwt'
 
 /**
  * LOCKED FILE — Team 03 (Auth & Identity) + a maintainer review.
@@ -8,6 +8,10 @@ import { verifyAccessToken, type AccessTokenPayload } from './jwt'
  * `req.auth` is the ONLY trustworthy source of the caller's identity. Never read
  * a user id from the request body, a query param, or a header — including in the
  * AI assistant's tool handlers.
+ *
+ * Now verifies Supabase-issued JWTs instead of custom-signed ones. The interface
+ * (`requireAuth`, `requireRole`, `currentUser`) is unchanged so every other
+ * module keeps working without edits.
  */
 
 declare global {
@@ -18,6 +22,8 @@ declare global {
     }
   }
 }
+
+export type { AccessTokenPayload } from './jwt'
 
 export class AuthError extends Error {
   readonly status: number
@@ -37,7 +43,7 @@ function readBearerToken(req: Request): string | null {
   return header.slice('Bearer '.length).trim() || null
 }
 
-/** Rejects the request unless it carries a valid, unexpired access token. */
+/** Rejects the request unless it carries a valid, unexpired Supabase access token. */
 export function requireAuth(req: Request, _res: Response, next: NextFunction) {
   const token = readBearerToken(req)
   if (!token) {
@@ -45,7 +51,7 @@ export function requireAuth(req: Request, _res: Response, next: NextFunction) {
   }
 
   try {
-    req.auth = verifyAccessToken(token)
+    req.auth = parseAccessToken(token)
     return next()
   } catch {
     return next(new AuthError(401, 'INVALID_TOKEN', 'Token is invalid or expired'))

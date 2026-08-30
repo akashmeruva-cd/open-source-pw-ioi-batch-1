@@ -1,18 +1,13 @@
 import type { CookieOptions, Request, Response } from 'express'
-import { REFRESH_TOKEN_TTL_MS } from '@repo/auth/jwt'
 import { currentUser } from '@repo/auth/middleware'
 import { HttpError } from '@repo/http/http-error'
 import type { LoginInput } from '@repo/validation/auth'
-import {
-  endAdminSession,
-  getAdminById,
-  loginAdmin,
-  refreshAdminSession,
-} from './auth.service'
+import { endAdminSession, getAdminById, loginAdmin, refreshAdminSession } from './auth.service'
 
 /** Owner: Team 03 — Auth & Identity. */
 
 export const REFRESH_COOKIE = 'admin_refresh_token'
+const REFRESH_TOKEN_TTL_MS = 7 * 24 * 60 * 60 * 1000
 
 function refreshCookieOptions(): CookieOptions {
   const isProd = process.env.NODE_ENV === 'production'

@@ -45,7 +45,7 @@ Your files are locked in CODEOWNERS, which means every feature team is blocked o
 
 ## Independence
 
-**Blocked by: nothing.** You build components, not data, so you need nothing from anyone. Twelve teams need things from *you* — that is the asymmetry to manage.
+**Blocked by: nothing.** You build components, not data, so you need nothing from anyone. Twelve teams need things from _you_ — that is the asymmetry to manage.
 
 Two rules keep it that way:
 
@@ -54,14 +54,14 @@ Two rules keep it that way:
 
 ## Agreements (not dependencies)
 
-Four decisions that two or more teams must make the *same way*. Settle them in week 1 and write them into `docs/` — nobody is blocked, but disagreeing is expensive to unpick later.
+Four decisions that two or more teams must make the _same way_. Settle them in week 1 and write them into `docs/` — nobody is blocked, but disagreeing is expensive to unpick later.
 
-| Agreement | Teams | Owner |
-|---|---|---|
+| Agreement                                                                                | Teams             | Owner  |
+| ---------------------------------------------------------------------------------------- | ----------------- | ------ |
 | The attendance-percentage formula (does LATE count? does EXCUSED leave the denominator?) | 06 · 12 · 13 · 09 | **06** |
-| The batch timezone rule, and what "today" means | 07 · 06 · 09 | **07** |
-| One chart library, requested once | 09 · 12 | **12** |
-| One Cloudinary signed-upload helper, written once | 04 · 05 · 09 | **04** |
+| The batch timezone rule, and what "today" means                                          | 07 · 06 · 09      | **07** |
+| One chart library, requested once                                                        | 09 · 12           | **12** |
+| One Cloudinary signed-upload helper, written once                                        | 04 · 05 · 09      | **04** |
 
 ## Definition of ready to merge
 

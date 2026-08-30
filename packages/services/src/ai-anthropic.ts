@@ -26,9 +26,7 @@ const DEFAULT_EFFORT = 'low'
 
 export function createAnthropicAi(): AiDriver {
   if (!process.env.ANTHROPIC_API_KEY) {
-    throw new Error(
-      'ANTHROPIC_API_KEY is not set. Use AI_DRIVER=stub locally — it needs no key.',
-    )
+    throw new Error('ANTHROPIC_API_KEY is not set. Use AI_DRIVER=stub locally — it needs no key.')
   }
 
   const client = new Anthropic()

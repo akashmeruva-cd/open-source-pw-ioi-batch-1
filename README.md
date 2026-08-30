@@ -15,8 +15,7 @@ order:
 Then **[docs/first-contribution.md](docs/first-contribution.md)** walks you from
 picking an issue to a merged PR. Full index: **[docs/](docs/README.md)**.
 
-**Stack:** MongoDB · Express · React (Next.js) · Node — with Cloudinary for file
-storage and Claude for the assistant. Everything deploys to Vercel.
+**Stack:** Supabase (PostgreSQL + Auth + Storage) · Drizzle ORM · Express · React (Next.js) · Node — with Claude for the assistant. Everything deploys to Vercel.
 
 ---
 
@@ -29,9 +28,9 @@ apps/
   api-student/    Express — the student API               :4000
   api-admin/      Express — the admin API                 :4001
 packages/
-  models/         Mongoose schemas, one file per model
+  models/         Drizzle ORM schema & Supabase DB client
   validation/     Zod schemas — the contract between frontend and backend
-  auth/           JWT, password hashing, session rotation, role middleware
+  auth/           Supabase JWT verification and role middleware
   http/           HttpError, request validation, error middleware
   client/         The browser-side API client both frontends use
   ui/             Shared components and the design tokens
@@ -50,9 +49,9 @@ git clone <this repo>
 cd open-source-pw-ioi-batch-1
 npm install
 
-cp .env.example .env      # then fill in the two JWT secrets
+cp .env.example .env
 
-npm run db:local          # terminal 1 — a real MongoDB, no account needed
+npm run db:local          # terminal 1 — local Supabase stack (PostgreSQL + Auth + Studio)
 npm run seed              # terminal 2 — wipes the dev database, loads demo data
 npm run dev               # starts all four apps
 ```

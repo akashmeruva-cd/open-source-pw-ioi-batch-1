@@ -16,7 +16,7 @@ external has a local driver:
 
 | Service      | Local default          | What it does                                        |
 | ------------ | ---------------------- | --------------------------------------------------- |
-| Database     | `npm run db:local`     | Runs a real MongoDB on your machine                 |
+| Database     | `npm run db:local`     | Runs local Supabase (PostgreSQL + Auth + Studio)    |
 | File storage | `STORAGE_DRIVER=local` | Writes uploads to `.local-uploads/`                 |
 | Email        | `EMAIL_DRIVER=console` | Prints the email (and reset links) to your terminal |
 | AI assistant | `AI_DRIVER=stub`       | Deterministic canned replies and tool calls         |
@@ -38,38 +38,20 @@ that is what the workspace setup buys us. Never run `npm install` inside
 
 ## 2. Get a database
 
-### Option A — the bundled local database (recommended)
+### Option A — Local Supabase (recommended)
+
+Make sure **Docker Desktop** is installed and running, then:
 
 ```bash
 npm run db:local
 ```
 
-Leave it running in its own terminal. It downloads a real MongoDB binary the
-first time (~90MB) and stores data in `.local-db/`, so your data survives
-restarts. It prints the connection string to put in `.env`.
+This starts local PostgreSQL, Supabase Auth, and the Supabase Studio dashboard at <http://localhost:54323>.
 
-### Option B — MongoDB Atlas
+### Option B — Supabase Cloud Project
 
-1. Sign up at <https://www.mongodb.com/cloud/atlas> and create a **free M0**
-   cluster.
-2. **Database Access** → add a user with a password you will remember.
-3. **Network Access** → add IP `0.0.0.0/0`. This is fine for a dev cluster with
-   throwaway data; never do it for anything real.
-4. **Connect → Drivers** → copy the connection string.
-
-Name the database `tracker_dev` in the URI:
-
-```
-mongodb+srv://USER:PASSWORD@CLUSTER.mongodb.net/tracker_dev?retryWrites=true&w=majority
-```
-
-### Option C — Docker
-
-```bash
-docker run -d -p 27017:27017 --name tracker-mongo mongo:7
-```
-
-Then use `mongodb://localhost:27017/tracker_dev`.
+1. Create a free project at <https://supabase.com>.
+2. Copy `DATABASE_URL`, `SUPABASE_URL`, `SUPABASE_ANON_KEY`, and `SUPABASE_SERVICE_ROLE_KEY` from your project settings into `.env`.
 
 ## 3. Configure the environment
 

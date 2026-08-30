@@ -21,15 +21,15 @@ apps/web-student/app/(dashboard)/materials/
 
 **Endpoints**
 
-| API | Method | Path |
-|---|---|---|
-| student | GET | `/api/materials?subjectId=&type=` |
-| student | GET | `/api/materials/search?q=` |
-| student | GET | `/api/materials/:id` |
-| admin | POST | `/api/materials/upload-signature` |
-| admin | POST | `/api/materials` |
-| admin | PATCH | `/api/materials/:id` |
-| admin | DELETE | `/api/materials/:id` |
+| API     | Method | Path                              |
+| ------- | ------ | --------------------------------- |
+| student | GET    | `/api/materials?subjectId=&type=` |
+| student | GET    | `/api/materials/search?q=`        |
+| student | GET    | `/api/materials/:id`              |
+| admin   | POST   | `/api/materials/upload-signature` |
+| admin   | POST   | `/api/materials`                  |
+| admin   | PATCH  | `/api/materials/:id`              |
+| admin   | DELETE | `/api/materials/:id`              |
 
 ## Cloudinary uploads — read this carefully
 
@@ -71,14 +71,14 @@ Two rules keep it that way:
 
 ## Agreements (not dependencies)
 
-Four decisions that two or more teams must make the *same way*. Settle them in week 1 and write them into `docs/` — nobody is blocked, but disagreeing is expensive to unpick later.
+Four decisions that two or more teams must make the _same way_. Settle them in week 1 and write them into `docs/` — nobody is blocked, but disagreeing is expensive to unpick later.
 
-| Agreement | Teams | Owner |
-|---|---|---|
+| Agreement                                                                                | Teams             | Owner  |
+| ---------------------------------------------------------------------------------------- | ----------------- | ------ |
 | The attendance-percentage formula (does LATE count? does EXCUSED leave the denominator?) | 06 · 12 · 13 · 09 | **06** |
-| The batch timezone rule, and what "today" means | 07 · 06 · 09 | **07** |
-| One chart library, requested once | 09 · 12 | **12** |
-| One Cloudinary signed-upload helper, written once | 04 · 05 · 09 | **04** |
+| The batch timezone rule, and what "today" means                                          | 07 · 06 · 09      | **07** |
+| One chart library, requested once                                                        | 09 · 12           | **12** |
+| One Cloudinary signed-upload helper, written once                                        | 04 · 05 · 09      | **04** |
 
 ## Definition of ready to merge
 

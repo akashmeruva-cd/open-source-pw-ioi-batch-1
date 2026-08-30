@@ -21,17 +21,17 @@ apps/web-student/app/(dashboard)/timetable/
 
 **Endpoints**
 
-| API | Method | Path |
-|---|---|---|
-| student | GET | `/api/sessions/timetable?from=&to=` |
-| student | GET | `/api/sessions/today` |
-| student | GET | `/api/sessions/:id` |
-| admin | POST | `/api/sessions` · `POST /api/sessions/bulk` |
-| admin | PATCH | `/api/sessions/:id` · `POST /api/sessions/:id/cancel` |
+| API     | Method | Path                                                  |
+| ------- | ------ | ----------------------------------------------------- |
+| student | GET    | `/api/sessions/timetable?from=&to=`                   |
+| student | GET    | `/api/sessions/today`                                 |
+| student | GET    | `/api/sessions/:id`                                   |
+| admin   | POST   | `/api/sessions` · `POST /api/sessions/bulk`           |
+| admin   | PATCH  | `/api/sessions/:id` · `POST /api/sessions/:id/cancel` |
 
 ## Time zones will get you
 
-Store everything in UTC (Mongo does this already). Render in the user's local zone. "Today" means today *for the student*, which is not the same as today in UTC — a 9am class in IST is 03:30 UTC the same day, but an evening class can land on the next UTC date.
+Store everything in UTC (Mongo does this already). Render in the user's local zone. "Today" means today _for the student_, which is not the same as today in UTC — a 9am class in IST is 03:30 UTC the same day, but an evening class can land on the next UTC date.
 
 Decide early whether the batch has a single fixed time zone (almost certainly yes for one college) and write it down. That decision makes "today's classes" simple; discovering it in W8 makes it painful.
 
@@ -64,14 +64,14 @@ Two rules keep it that way:
 
 ## Agreements (not dependencies)
 
-Four decisions that two or more teams must make the *same way*. Settle them in week 1 and write them into `docs/` — nobody is blocked, but disagreeing is expensive to unpick later.
+Four decisions that two or more teams must make the _same way_. Settle them in week 1 and write them into `docs/` — nobody is blocked, but disagreeing is expensive to unpick later.
 
-| Agreement | Teams | Owner |
-|---|---|---|
+| Agreement                                                                                | Teams             | Owner  |
+| ---------------------------------------------------------------------------------------- | ----------------- | ------ |
 | The attendance-percentage formula (does LATE count? does EXCUSED leave the denominator?) | 06 · 12 · 13 · 09 | **06** |
-| The batch timezone rule, and what "today" means | 07 · 06 · 09 | **07** |
-| One chart library, requested once | 09 · 12 | **12** |
-| One Cloudinary signed-upload helper, written once | 04 · 05 · 09 | **04** |
+| The batch timezone rule, and what "today" means                                          | 07 · 06 · 09      | **07** |
+| One chart library, requested once                                                        | 09 · 12           | **12** |
+| One Cloudinary signed-upload helper, written once                                        | 04 · 05 · 09      | **04** |
 
 ## Definition of ready to merge
 

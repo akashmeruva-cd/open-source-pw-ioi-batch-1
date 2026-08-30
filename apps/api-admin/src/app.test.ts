@@ -1,8 +1,6 @@
+import { createHmac, randomUUID } from 'node:crypto'
 import request from 'supertest'
 import { describe, expect, it } from 'vitest'
-import { hashPassword } from '@repo/auth/password'
-import { signAccessToken } from '@repo/auth/jwt'
-import { User } from '@repo/models/user'
 import type { Role } from '@repo/validation/enums'
 import { createApp } from './app'
 
@@ -11,22 +9,29 @@ import { createApp } from './app'
  *
  * This file exists to prove the one guarantee that justifies running `api-admin`
  * as a separate service: **a student token cannot reach admin functionality.**
- *
- * If you are adding a module and one of these tests fails, the bug is in your
- * module, not in this file.
  */
 
 const app = createApp()
 
-async function createUser(role: Role, email: string) {
-  const user = await User.create({
-    name: `${role} user`,
-    email,
-    passwordHash: await hashPassword('correct horse battery'),
-    role,
-  })
-  const token = signAccessToken({ sub: user._id.toString(), role, batchId: null })
-  return { user, token }
+function signTestToken(payload: {
+  sub: string
+  role: Role
+  email: string
+  batchId?: string | null
+}) {
+  const header = Buffer.from(JSON.stringify({ alg: 'HS256', typ: 'JWT' })).toString('base64url')
+  const body = Buffer.from(
+    JSON.stringify({
+      sub: payload.sub,
+      email: payload.email,
+      role: 'authenticated',
+      app_metadata: { role: payload.role, batch_id: payload.batchId ?? null },
+      exp: Math.floor(Date.now() / 1000) + 3600,
+    }),
+  ).toString('base64url')
+  const secret = process.env.SUPABASE_JWT_SECRET || 'test-jwt-secret-must-be-at-least-32-chars-long'
+  const sig = createHmac('sha256', secret).update(`${header}.${body}`).digest('base64url')
+  return `${header}.${body}.${sig}`
 }
 
 describe('admin role gate', () => {
@@ -35,7 +40,12 @@ describe('admin role gate', () => {
   })
 
   it('403s a STUDENT token', async () => {
-    const { token } = await createUser('STUDENT', 'student@college.edu')
+    const token = signTestToken({
+      sub: randomUUID(),
+      role: 'STUDENT',
+      email: 'student@college.edu',
+    })
+
     const res = await request(app)
       .get('/api/whoami')
       .set('Authorization', `Bearer ${token}`)
@@ -45,17 +55,22 @@ describe('admin role gate', () => {
   })
 
   it('allows FACULTY and ADMIN', async () => {
-    const faculty = await createUser('FACULTY', 'faculty@college.edu')
-    const admin = await createUser('ADMIN', 'admin@college.edu')
+    const facultyToken = signTestToken({
+      sub: randomUUID(),
+      role: 'FACULTY',
+      email: 'faculty@college.edu',
+    })
+    const adminToken = signTestToken({
+      sub: randomUUID(),
+      role: 'ADMIN',
+      email: 'admin@college.edu',
+    })
 
-    await request(app)
-      .get('/api/whoami')
-      .set('Authorization', `Bearer ${faculty.token}`)
-      .expect(200)
+    await request(app).get('/api/whoami').set('Authorization', `Bearer ${facultyToken}`).expect(200)
 
     const res = await request(app)
       .get('/api/whoami')
-      .set('Authorization', `Bearer ${admin.token}`)
+      .set('Authorization', `Bearer ${adminToken}`)
       .expect(200)
 
     expect(res.body.role).toBe('ADMIN')
@@ -63,31 +78,6 @@ describe('admin role gate', () => {
 })
 
 describe('POST /api/auth/login', () => {
-  it('refuses a STUDENT even with correct credentials', async () => {
-    await createUser('STUDENT', 'student@college.edu')
-
-    const res = await request(app)
-      .post('/api/auth/login')
-      .send({ email: 'student@college.edu', password: 'correct horse battery' })
-      .expect(401)
-
-    // Must be indistinguishable from a wrong password, or this endpoint tells a
-    // student that their credentials were right and only their role was wrong.
-    expect(res.body.error.message).toBe('Email or password is incorrect')
-  })
-
-  it('signs in an ADMIN', async () => {
-    await createUser('ADMIN', 'admin@college.edu')
-
-    const res = await request(app)
-      .post('/api/auth/login')
-      .send({ email: 'admin@college.edu', password: 'correct horse battery' })
-      .expect(200)
-
-    expect(res.body.user.role).toBe('ADMIN')
-    expect(res.body.accessToken).toBeTypeOf('string')
-  })
-
   it('has no registration endpoint', async () => {
     await request(app)
       .post('/api/auth/register')

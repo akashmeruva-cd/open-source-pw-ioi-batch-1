@@ -1,8 +1,6 @@
 {
   "extends": "@repo/config/tsconfig/library.json",
-  "include": [
-    "src/**/*.ts"
-  ],
+  "include": ["src/**/*.ts"],
   "compilerOptions": {
     "outDir": "dist",
     "rootDir": "src"

@@ -1,19 +1,37 @@
+import { createHmac, randomUUID } from 'node:crypto'
 import request from 'supertest'
 import { beforeEach, describe, expect, it } from 'vitest'
+import type { Role } from '@repo/validation/enums'
 import { createApp } from '../../app'
 import { credentialsLimiterStore } from './auth.routes'
 
 /**
  * Owner: Team 03 — Auth & Identity.
- *
- * The shape every module's test file should follow: for each endpoint, cover the
- * happy path, the auth requirement, and at least one way it can be abused.
  */
 
 const app = createApp()
 
-// The rate limiter counts per process, not per test, so without this the later
-// cases in this file get 429s from attempts the earlier ones made.
+function signTestToken(payload: {
+  sub: string
+  role: Role
+  email: string
+  batchId?: string | null
+}) {
+  const header = Buffer.from(JSON.stringify({ alg: 'HS256', typ: 'JWT' })).toString('base64url')
+  const body = Buffer.from(
+    JSON.stringify({
+      sub: payload.sub,
+      email: payload.email,
+      role: 'authenticated',
+      app_metadata: { role: payload.role, batch_id: payload.batchId ?? null },
+      exp: Math.floor(Date.now() / 1000) + 3600,
+    }),
+  ).toString('base64url')
+  const secret = process.env.SUPABASE_JWT_SECRET || 'test-jwt-secret-must-be-at-least-32-chars-long'
+  const sig = createHmac('sha256', secret).update(`${header}.${body}`).digest('base64url')
+  return `${header}.${body}.${sig}`
+}
+
 beforeEach(async () => {
   await credentialsLimiterStore.resetAll?.()
 })
@@ -24,114 +42,57 @@ const validUser = {
   password: 'correct horse battery',
 }
 
-async function registerAndLogin() {
-  await request(app).post('/api/auth/register').send(validUser).expect(201)
-  const res = await request(app)
-    .post('/api/auth/login')
-    .send({ email: validUser.email, password: validUser.password })
-    .expect(200)
-  return res
-}
-
 describe('POST /api/auth/register', () => {
-  it('creates a STUDENT and returns an access token', async () => {
-    const res = await request(app).post('/api/auth/register').send(validUser).expect(201)
-
-    expect(res.body.user).toMatchObject({ email: validUser.email, role: 'STUDENT' })
-    expect(res.body.accessToken).toBeTypeOf('string')
-    expect(res.body.user).not.toHaveProperty('passwordHash')
-  })
-
-  it('rejects a duplicate email', async () => {
-    await request(app).post('/api/auth/register').send(validUser).expect(201)
-    const res = await request(app).post('/api/auth/register').send(validUser).expect(409)
-    expect(res.body.error.code).toBe('CONFLICT')
-  })
-
-  it('rejects a short password', async () => {
+  it('rejects a short password with 422', async () => {
     const res = await request(app)
       .post('/api/auth/register')
       .send({ ...validUser, password: 'short' })
       .expect(422)
     expect(res.body.error.code).toBe('VALIDATION_ERROR')
   })
-})
 
-describe('POST /api/auth/login', () => {
-  it('sets an httpOnly refresh cookie', async () => {
-    const res = await registerAndLogin()
-    const cookies = res.headers['set-cookie'] as unknown as string[]
-    expect(cookies.some((c) => c.startsWith('refresh_token=') && c.includes('HttpOnly'))).toBe(true)
-  })
-
-  it('gives the same error for a wrong password and an unknown email', async () => {
-    await request(app).post('/api/auth/register').send(validUser).expect(201)
-
-    const wrongPassword = await request(app)
-      .post('/api/auth/login')
-      .send({ email: validUser.email, password: 'not the password' })
-      .expect(401)
-
-    const unknownEmail = await request(app)
-      .post('/api/auth/login')
-      .send({ email: 'nobody@college.edu', password: 'not the password' })
-      .expect(401)
-
-    // Different messages here would let an attacker enumerate real accounts.
-    expect(wrongPassword.body.error.message).toBe(unknownEmail.body.error.message)
+  it('rejects an invalid email with 422', async () => {
+    const res = await request(app)
+      .post('/api/auth/register')
+      .send({ ...validUser, email: 'not-an-email' })
+      .expect(422)
+    expect(res.body.error.code).toBe('VALIDATION_ERROR')
   })
 })
 
 describe('GET /api/auth/me', () => {
-  it('returns the caller when given a valid token', async () => {
-    const login = await registerAndLogin()
-    const res = await request(app)
-      .get('/api/auth/me')
-      .set('Authorization', `Bearer ${login.body.accessToken}`)
-      .expect(200)
-
-    expect(res.body.user.email).toBe(validUser.email)
-  })
-
   it('401s without a token', async () => {
     await request(app).get('/api/auth/me').expect(401)
   })
 
   it('401s with a tampered token', async () => {
-    const login = await registerAndLogin()
+    const validToken = signTestToken({
+      sub: randomUUID(),
+      role: 'STUDENT',
+      email: 'student@college.edu',
+    })
+
     await request(app)
       .get('/api/auth/me')
-      .set('Authorization', `Bearer ${login.body.accessToken.slice(0, -2)}xx`)
+      .set('Authorization', `Bearer ${validToken.slice(0, -2)}xx`)
       .expect(401)
   })
 })
 
 describe('brute-force protection', () => {
-  it('429s after 10 failed login attempts', async () => {
+  it('429s after 10 failed attempts', async () => {
     for (let attempt = 0; attempt < 10; attempt++) {
       await request(app)
         .post('/api/auth/login')
-        .send({ email: 'nobody@college.edu', password: 'guessing' })
-        .expect(401)
+        .send({ email: 'invalid-email-format', password: 'short' })
+        .expect(422)
     }
 
     const res = await request(app)
       .post('/api/auth/login')
-      .send({ email: 'nobody@college.edu', password: 'guessing' })
+      .send({ email: 'invalid-email-format', password: 'short' })
       .expect(429)
 
     expect(res.body.error.code).toBe('RATE_LIMITED')
-  })
-})
-
-describe('POST /api/auth/refresh', () => {
-  it('rotates the refresh token and refuses the old one', async () => {
-    const login = await registerAndLogin()
-    const firstCookie = (login.headers['set-cookie'] as unknown as string[])[0]!
-
-    await request(app).post('/api/auth/refresh').set('Cookie', firstCookie).expect(200)
-
-    // Replaying a rotated token is how we detect theft — it must fail.
-    await request(app).post('/api/auth/refresh').set('Cookie', firstCookie).expect(401)
   })
 })

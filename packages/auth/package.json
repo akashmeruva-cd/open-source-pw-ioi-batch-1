@@ -15,16 +15,11 @@
     "clean": "rm -rf dist .turbo"
   },
   "dependencies": {
-    "@repo/models": "*",
-    "@repo/validation": "*",
-    "bcryptjs": "^2.4.3",
-    "jsonwebtoken": "^9.0.2"
+    "@repo/validation": "*"
   },
   "devDependencies": {
     "@repo/config": "*",
-    "@types/bcryptjs": "^2.4.6",
     "@types/express": "^4.17.21",
-    "@types/jsonwebtoken": "^9.0.7",
     "@types/node": "^22.10.2",
     "express": "^4.21.2",
     "typescript": "^5.7.2"

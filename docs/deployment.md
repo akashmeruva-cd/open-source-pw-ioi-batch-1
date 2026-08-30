@@ -1,6 +1,6 @@
 # Deployment
 
-Four Vercel projects from this one repository, plus MongoDB Atlas and Cloudinary.
+Four Vercel projects from this one repository, plus Supabase (PostgreSQL + Auth + Storage).
 
 ## Vercel projects
 
@@ -39,19 +39,16 @@ rather than to start batching pushes.
 Set these per project in **Settings → Environment Variables**. Note carefully
 which ones must _not_ be set on the frontends.
 
-| Variable              | student web | admin web | api-student | api-admin |
-| --------------------- | :---------: | :-------: | :---------: | :-------: |
-| `MONGODB_URI`         |      —      |     —     |     ✅      |    ✅     |
-| `JWT_ACCESS_SECRET`   |      —      |     —     |     ✅      |    ✅     |
-| `JWT_REFRESH_SECRET`  |      —      |     —     |     ✅      |    ✅     |
-| `CORS_ORIGIN`         |      —      |     —     |     ✅      |    ✅     |
-| `NEXT_PUBLIC_API_URL` |     ✅      |    ✅     |      —      |     —     |
-| `CLOUDINARY_*`        |      —      |     —     |     ✅      |    ✅     |
-| `ANTHROPIC_API_KEY`   |      —      |     —     |     ✅      |     —     |
-
-The two APIs must share the **same** `JWT_ACCESS_SECRET` — an admin signing in
-through `api-admin` gets a token that `api-student` also has to be able to
-verify.
+| Variable                    | student web | admin web | api-student | api-admin |
+| --------------------------- | :---------: | :-------: | :---------: | :-------: |
+| `DATABASE_URL`              |      —      |     —     |     ✅      |    ✅     |
+| `SUPABASE_URL`              |      —      |     —     |     ✅      |    ✅     |
+| `SUPABASE_ANON_KEY`         |      —      |     —     |     ✅      |    ✅     |
+| `SUPABASE_SERVICE_ROLE_KEY` |      —      |     —     |     ✅      |    ✅     |
+| `SUPABASE_JWT_SECRET`       |      —      |     —     |     ✅      |    ✅     |
+| `CORS_ORIGIN`               |      —      |     —     |     ✅      |    ✅     |
+| `NEXT_PUBLIC_API_URL`       |     ✅      |    ✅     |      —      |     —     |
+| `ANTHROPIC_API_KEY`         |      —      |     —     |     ✅      |     —     |
 
 `CORS_ORIGIN` on each API is the URL of the frontend that talks to it:
 
@@ -75,11 +72,10 @@ the browser drops it.
 
 ## Databases
 
-One Atlas cluster, two databases:
+Supabase PostgreSQL database:
 
-- `tracker_dev` — what everyone's local `.env` points at, and what `npm run seed`
-  is allowed to wipe.
-- `tracker_prod` — the deployed apps only.
+- Local dev: local PostgreSQL via `npx supabase start` (port 54322)
+- Production: managed Supabase project
 
 The seed script refuses to run against a connection string containing `prod`.
 That check is the only thing standing between a tired contributor and the live
@@ -88,8 +84,8 @@ data, so do not name the production database something clever that gets past it.
 ## Preview deployments
 
 Every PR gets four preview URLs (or fewer, thanks to `turbo-ignore`). Previews
-share the production environment variables by default — **change the preview
-`MONGODB_URI` to `tracker_dev`** so a preview cannot write to live data.
+share the production environment variables by default — **point the preview
+`DATABASE_URL` at a dev database** so a preview cannot write to live data.
 
 Batch contributors push branches to this repo rather than forks, specifically so
 previews work: Vercel does not expose environment variables to fork PRs, which
@@ -105,4 +101,4 @@ would leave every preview broken.
 5. Sign in to the student portal. Then try the same credentials on the admin
    portal; it must fail.
 6. Open DevTools → Network on the deployed student portal and confirm no request
-   or bundle contains `CLOUDINARY_API_SECRET` or `ANTHROPIC_API_KEY`.
+   or bundle contains `SUPABASE_SERVICE_ROLE_KEY` or `ANTHROPIC_API_KEY`.
