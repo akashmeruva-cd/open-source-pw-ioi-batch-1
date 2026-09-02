@@ -1,5 +1,6 @@
 import type { NavItem } from '../nav-item'
 import dashboard from './dashboard'
+import notes from './notes'
 
 /**
  * APPEND-ONLY REGISTRY — the sidebar equivalent of `api-student/src/modules.ts`.
@@ -10,6 +11,7 @@ import dashboard from './dashboard'
  */
 const items: NavItem[] = [
   dashboard,
+  notes,
   // announcements,  → Team 08
   // assignments,    → Team 05
   // assistant,      → Team 13
