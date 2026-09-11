@@ -1,5 +1,7 @@
 import type { NavItem } from '../nav-item'
 import overview from './overview'
+import batches from './batches'
+import subjects from './subjects'
 
 /**
  * APPEND-ONLY REGISTRY — one file per nav entry in this folder, one alphabetical
@@ -11,8 +13,9 @@ const items: NavItem[] = [
   // announcements, → Team 08
   // assignments,   → Team 05
   // attendance,    → Team 06
-  // batches,       → Team 10
+  batches,
   // materials,     → Team 04
+  subjects,
   // timetable,     → Team 07
   // users,         → Team 11 (roles: ['ADMIN'])
 ]

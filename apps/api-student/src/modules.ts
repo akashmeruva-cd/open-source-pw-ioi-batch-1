@@ -1,5 +1,6 @@
 import type { Router } from 'express'
 import authModule from './modules/auth/auth.module'
+import subjectsModule from './modules/subjects/subjects.module'
 
 export interface ApiModule {
   basePath: string
@@ -23,4 +24,5 @@ export const modules: ApiModule[] = [
   // attendanceModule,      → Team 06
   // materialsModule,       → Team 04
   // sessionsModule,        → Team 07
+  subjectsModule,
 ]
