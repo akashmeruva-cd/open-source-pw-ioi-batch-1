@@ -1,5 +1,6 @@
 import type { NavItem } from '../nav-item'
 import dashboard from './dashboard'
+import materials from './materials'
 
 /**
  * APPEND-ONLY REGISTRY — the sidebar equivalent of `api-student/src/modules.ts`.
@@ -14,7 +15,7 @@ const items: NavItem[] = [
   // assignments,    → Team 05
   // assistant,      → Team 13
   // attendance,     → Team 06
-  // materials,      → Team 04
+  materials,
   // timetable,      → Team 07
 ]
 
