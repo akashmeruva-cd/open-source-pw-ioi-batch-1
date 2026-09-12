@@ -1,4 +1,5 @@
 import type { Router } from 'express'
+import analyticsModule from './modules/analytics/analytics.module'
 import authModule from './modules/auth/auth.module'
 
 export interface ApiModule {
@@ -19,8 +20,8 @@ export interface ApiModule {
  * these automatically instead of conflicting.
  */
 export const modules: ApiModule[] = [
+  analyticsModule, // → Team 12
   authModule,
-  // analyticsModule,     → Team 12
   // announcementsModule, → Team 08
   // assignmentsModule,   → Team 05
   // attendanceModule,    → Team 06
