@@ -1,7 +1,6 @@
-import { Assignment } from '@repo/models/assignment'
-import { Enrollment } from '@repo/models/enrollment'
-import { Submission } from '@repo/models/submission'
+import { and, asc, eq, getDb, gte, inArray, lte } from '@repo/models/db'
 import { HttpError } from '@repo/http/http-error'
+import { assignments, enrollments, submissions } from '@repo/models/schema'
 
 /**
  * Owner: Team 13 — AI Assistant.
@@ -53,36 +52,49 @@ export async function listUpcomingAssignmentsForStudent(
   const now = new Date()
   const cutoff = new Date(now.getTime() + windowDays * 24 * 60 * 60 * 1000)
 
+  const db = getDb()
+
   // Access control first: only subjects the caller is actually enrolled in.
-  const enrolled = await Enrollment.find({ studentId }).select('subjectId').lean()
+  const enrolled = await db.select().from(enrollments).where(eq(enrollments.studentId, studentId))
   const allowedSubjectIds = enrolled.map((e) => e.subjectId)
   if (allowedSubjectIds.length === 0) return []
 
-  const assignments = await Assignment.find({
-    subjectId: { $in: allowedSubjectIds },
-    isPublished: true,
-    dueAt: { $gte: now, $lte: cutoff },
-  })
-    .sort({ dueAt: 1 })
-    .lean()
+  const found = await db
+    .select()
+    .from(assignments)
+    .where(
+      and(
+        inArray(assignments.subjectId, allowedSubjectIds),
+        eq(assignments.isPublished, true),
+        gte(assignments.dueAt, now),
+        lte(assignments.dueAt, cutoff),
+      ),
+    )
+    .orderBy(asc(assignments.dueAt))
 
-  if (assignments.length === 0) return []
+  if (found.length === 0) return []
 
   // Upcoming means not yet submitted. One query, not one per assignment.
-  const submitted = await Submission.find({
-    studentId,
-    assignmentId: { $in: assignments.map((a) => a._id) },
-  })
-    .select('assignmentId')
-    .lean()
-  const submittedIds = new Set(submitted.map((s) => s.assignmentId.toString()))
+  const submitted = await db
+    .select()
+    .from(submissions)
+    .where(
+      and(
+        eq(submissions.studentId, studentId),
+        inArray(
+          submissions.assignmentId,
+          found.map((a) => a.id),
+        ),
+      ),
+    )
+  const submittedIds = new Set(submitted.map((s) => s.assignmentId))
 
-  return assignments
-    .filter((a) => !submittedIds.has(a._id.toString()))
+  return found
+    .filter((a) => !submittedIds.has(a.id))
     .map((a) => ({
-      id: a._id.toString(),
+      id: a.id,
       title: a.title,
-      subjectId: a.subjectId.toString(),
+      subjectId: a.subjectId,
       description: a.description,
       dueAt: a.dueAt.toISOString(),
       maxMarks: a.maxMarks,

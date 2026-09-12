@@ -92,5 +92,5 @@ export async function disconnectFromDatabase() {
 }
 
 export { schema }
-export { eq, and, or, sql, desc, asc, not, inArray, notInArray } from 'drizzle-orm'
+export { eq, and, or, sql, desc, asc, not, inArray, notInArray, gte, lte } from 'drizzle-orm'
 export type Database = ReturnType<typeof getDb>
