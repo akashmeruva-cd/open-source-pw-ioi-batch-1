@@ -1,4 +1,5 @@
 import type { NavItem } from '../nav-item'
+import analytics from './analytics'
 import overview from './overview'
 
 /**
@@ -7,7 +8,7 @@ import overview from './overview'
  */
 const items: NavItem[] = [
   overview,
-  // analytics,     → Team 12
+  analytics,     // Team 12 ✓
   // announcements, → Team 08
   // assignments,   → Team 05
   // attendance,    → Team 06
