@@ -1,4 +1,5 @@
 import type { Router } from 'express'
+import assistantModule from './modules/assistant/assistant.module'
 import authModule from './modules/auth/auth.module'
 
 export interface ApiModule {
@@ -16,10 +17,10 @@ export interface ApiModule {
  * Do not reorder, do not group, do not reformat other teams' lines.
  */
 export const modules: ApiModule[] = [
+  assistantModule, // → Team 13
   authModule,
   // announcementsModule,   → Team 08
   // assignmentsModule,     → Team 05
-  // assistantModule,       → Team 13
   // attendanceModule,      → Team 06
   // materialsModule,       → Team 04
   // sessionsModule,        → Team 07
