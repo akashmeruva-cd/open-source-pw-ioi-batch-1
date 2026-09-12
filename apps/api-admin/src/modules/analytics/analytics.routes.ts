@@ -1,8 +1,8 @@
 import { Router } from 'express'
 import { asyncHandler } from '@repo/http/async-handler'
 import { validate } from '@repo/http/validate'
-import { batchAnalyticsParamsSchema } from '@repo/validation/analytics'
-import { getBatchAnalyticsHandler } from './analytics.controller'
+import { batchAnalyticsParamsSchema, subjectAnalyticsParamsSchema } from '@repo/validation/analytics'
+import { getBatchAnalyticsHandler, getSubjectAnalyticsHandler } from './analytics.controller'
 
 /**
  * Owner: Team 12 — Admin Analytics & Reports.
@@ -16,4 +16,10 @@ analyticsRouter.get(
   '/batch/:batchId',
   validate(batchAnalyticsParamsSchema, 'params'),
   asyncHandler(getBatchAnalyticsHandler),
+)
+
+analyticsRouter.get(
+  '/subject/:subjectId',
+  validate(subjectAnalyticsParamsSchema, 'params'),
+  asyncHandler(getSubjectAnalyticsHandler),
 )

@@ -1,9 +1,10 @@
-import { and, avg, count, countDistinct, eq, getDb, inArray } from '@repo/models/db'
+import { and, avg, count, countDistinct, eq, getDb, inArray, lte } from '@repo/models/db'
 import { HttpError } from '@repo/http/http-error'
 import {
   attendance,
   assignments,
   batches,
+  classSessions,
   enrollments,
   subjects,
   submissions,
@@ -11,14 +12,15 @@ import {
 import type {
   AttendanceBucket,
   BatchAnalyticsResponse,
+  SubjectAnalyticsResponse,
 } from '@repo/validation/analytics'
 
 /**
  * Owner: Team 12 — Admin Analytics & Reports.
  *
- * Batch dashboard analytics. Every number in here is computed by the
- * database — GROUP BY + aggregate functions over the grouping of the seeded
- * data; the only JavaScript below reshapes rows that SQL has already
+ * Batch dashboard and subject analytics. Every number in here is computed by
+ * the database — GROUP BY + aggregate functions over the grouping of the
+ * seeded data; the only JavaScript below reshapes rows that SQL has already
  * aggregated, never raw attendance/submission records.
  *
  * Attendance % formula: PRESENT ÷ all records. LATE and EXCUSED stay in the
@@ -212,5 +214,66 @@ export async function getBatchAnalytics(batchId: string): Promise<BatchAnalytics
       averageMarks: toAvgMarks(averageMarksRow?.averageMarks),
     },
     perSubject,
+  }
+}
+
+export async function getSubjectAnalytics(subjectId: string): Promise<SubjectAnalyticsResponse> {
+  const db = getDb()
+
+  const [subjectRow] = await db.select().from(subjects).where(eq(subjects.id, subjectId))
+  if (!subjectRow) throw HttpError.notFound('Subject not found')
+
+  const [studentCountRow] = await db
+    .select({ n: countDistinct(enrollments.studentId) })
+    .from(enrollments)
+    .where(eq(enrollments.subjectId, subjectId))
+
+  const [sessionsRow] = await db
+    .select({ n: count() })
+    .from(classSessions)
+    .where(and(eq(classSessions.subjectId, subjectId), lte(classSessions.scheduledAt, new Date())))
+
+  const attendanceRows = await db
+    .select({ studentId: attendance.studentId, status: attendance.status, n: count() })
+    .from(attendance)
+    .where(eq(attendance.subjectId, subjectId))
+    .groupBy(attendance.studentId, attendance.status)
+
+  const assignmentRows = await db
+    .select({ id: assignments.id })
+    .from(assignments)
+    .where(eq(assignments.subjectId, subjectId))
+  const assignmentIds = assignmentRows.map((a) => a.id)
+
+  const submittedRows =
+    assignmentIds.length === 0
+      ? []
+      : await db
+          .select({ studentId: submissions.studentId, n: count() })
+          .from(submissions)
+          .innerJoin(assignments, eq(submissions.assignmentId, assignments.id))
+          .where(and(eq(assignments.subjectId, subjectId), inArray(submissions.assignmentId, assignmentIds)))
+          .groupBy(submissions.studentId)
+
+  const [averageMarksRow] = await db
+    .select({ averageMarks: avg(submissions.marks) })
+    .from(submissions)
+    .innerJoin(assignments, eq(submissions.assignmentId, assignments.id))
+    .where(and(eq(submissions.status, GRADED), eq(assignments.subjectId, subjectId)))
+
+  return {
+    subjectId,
+    subjectName: subjectRow.name,
+    subjectCode: subjectRow.code,
+    studentCount: studentCountRow?.n ?? 0,
+    attendance: {
+      averagePct: averagePctOf(attendanceRows),
+      distribution: attendanceDistribution(attendanceRows),
+    },
+    submissions: {
+      ratePct: ratePct(submittedRows.length, studentCountRow?.n ?? 0),
+      averageMarks: toAvgMarks(averageMarksRow?.averageMarks),
+    },
+    sessionsHeld: sessionsRow?.n ?? 0,
   }
 }
