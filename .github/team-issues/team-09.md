@@ -26,17 +26,17 @@ apps/web-student/app/(dashboard)/dashboard/page.tsx   ← integration weekend on
 
 **Endpoints**
 
-| Method | Path |
-|---|---|
-| GET/POST | `/api/notes` |
-| PATCH/DELETE | `/api/notes/:id` |
-| GET/POST | `/api/bookmarks` |
-| DELETE | `/api/bookmarks/:id` |
-| GET/PATCH | `/api/profile/me` |
+| Method       | Path                 |
+| ------------ | -------------------- |
+| GET/POST     | `/api/notes`         |
+| PATCH/DELETE | `/api/notes/:id`     |
+| GET/POST     | `/api/bookmarks`     |
+| DELETE       | `/api/bookmarks/:id` |
+| GET/PATCH    | `/api/profile/me`    |
 
 ## The rule that matters most here
 
-**Every query filters by `currentUser(req).sub`.** Not "the UI only shows your own notes" — the *query* must be scoped. A note is the most personal thing in this app, and `GET /api/notes/:id` returning someone else's note is the exact bug to avoid.
+**Every query filters by `currentUser(req).sub`.** Not "the UI only shows your own notes" — the _query_ must be scoped. A note is the most personal thing in this app, and `GET /api/notes/:id` returning someone else's note is the exact bug to avoid.
 
 Write this test before the feature works:
 
@@ -80,14 +80,14 @@ Two rules keep it that way:
 
 ## Agreements (not dependencies)
 
-Four decisions that two or more teams must make the *same way*. Settle them in week 1 and write them into `docs/` — nobody is blocked, but disagreeing is expensive to unpick later.
+Four decisions that two or more teams must make the _same way_. Settle them in week 1 and write them into `docs/` — nobody is blocked, but disagreeing is expensive to unpick later.
 
-| Agreement | Teams | Owner |
-|---|---|---|
+| Agreement                                                                                | Teams             | Owner  |
+| ---------------------------------------------------------------------------------------- | ----------------- | ------ |
 | The attendance-percentage formula (does LATE count? does EXCUSED leave the denominator?) | 06 · 12 · 13 · 09 | **06** |
-| The batch timezone rule, and what "today" means | 07 · 06 · 09 | **07** |
-| One chart library, requested once | 09 · 12 | **12** |
-| One Cloudinary signed-upload helper, written once | 04 · 05 · 09 | **04** |
+| The batch timezone rule, and what "today" means                                          | 07 · 06 · 09      | **07** |
+| One chart library, requested once                                                        | 09 · 12           | **12** |
+| One Cloudinary signed-upload helper, written once                                        | 04 · 05 · 09      | **04** |
 
 ## Definition of ready to merge
 

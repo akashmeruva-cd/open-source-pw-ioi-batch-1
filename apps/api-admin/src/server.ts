@@ -15,5 +15,7 @@ const port = Number(process.env.PORT ?? 4001)
 
 createApp().listen(port, () => {
   // eslint-disable-next-line no-console
-  console.log(`[api-admin] listening on http://localhost:${port}`)
+  console.log(
+    `[api-admin] API running on http://localhost:${port} -> Open Admin Portal at http://localhost:3001`,
+  )
 })

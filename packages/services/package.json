@@ -16,7 +16,8 @@
   },
   "dependencies": {
     "@anthropic-ai/sdk": "^0.117.1",
-    "@repo/http": "*"
+    "@repo/http": "*",
+    "@supabase/supabase-js": "^2.112.4"
   },
   "devDependencies": {
     "@repo/config": "*",

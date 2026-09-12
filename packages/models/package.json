@@ -12,14 +12,21 @@
     "build": "tsc -p tsconfig.json",
     "dev": "tsc -p tsconfig.json --watch --preserveWatchOutput",
     "typecheck": "tsc -p tsconfig.json --noEmit",
-    "clean": "rm -rf dist .turbo"
+    "clean": "rm -rf dist .turbo",
+    "db:generate": "drizzle-kit generate",
+    "db:migrate": "drizzle-kit migrate",
+    "db:push": "drizzle-kit push",
+    "db:studio": "drizzle-kit studio"
   },
   "dependencies": {
     "@repo/validation": "*",
-    "mongoose": "^8.9.2"
+    "@supabase/supabase-js": "^2.49.4",
+    "drizzle-orm": "^0.44.2",
+    "postgres": "^3.4.7"
   },
   "devDependencies": {
     "@repo/config": "*",
+    "drizzle-kit": "^0.31.4",
     "typescript": "^5.7.2"
   }
 }

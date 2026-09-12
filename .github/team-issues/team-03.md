@@ -19,7 +19,8 @@ apps/web-*/app/(auth)/
 
 Login, registration, refresh-token rotation, logout, `/me`, role middleware, the admin role gate, and 16 passing tests. **Read this code before writing any — it is the pattern the other teams are told to copy.**
 
-Specifically, understand *why*:
+Specifically, understand _why_:
+
 - Access tokens live 15 minutes and are held **in memory**, never `localStorage` (XSS)
 - Refresh tokens are opaque random strings stored as SHA-256 hashes, and **rotate** on use — a token presented twice fails, which is how theft becomes visible
 - Login returns the **same error** for a wrong password and an unknown email
@@ -63,14 +64,14 @@ Two rules keep it that way:
 
 ## Agreements (not dependencies)
 
-Four decisions that two or more teams must make the *same way*. Settle them in week 1 and write them into `docs/` — nobody is blocked, but disagreeing is expensive to unpick later.
+Four decisions that two or more teams must make the _same way_. Settle them in week 1 and write them into `docs/` — nobody is blocked, but disagreeing is expensive to unpick later.
 
-| Agreement | Teams | Owner |
-|---|---|---|
+| Agreement                                                                                | Teams             | Owner  |
+| ---------------------------------------------------------------------------------------- | ----------------- | ------ |
 | The attendance-percentage formula (does LATE count? does EXCUSED leave the denominator?) | 06 · 12 · 13 · 09 | **06** |
-| The batch timezone rule, and what "today" means | 07 · 06 · 09 | **07** |
-| One chart library, requested once | 09 · 12 | **12** |
-| One Cloudinary signed-upload helper, written once | 04 · 05 · 09 | **04** |
+| The batch timezone rule, and what "today" means                                          | 07 · 06 · 09      | **07** |
+| One chart library, requested once                                                        | 09 · 12           | **12** |
+| One Cloudinary signed-upload helper, written once                                        | 04 · 05 · 09      | **04** |
 
 ## Definition of ready to merge
 

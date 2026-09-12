@@ -1,6 +1,6 @@
 **Team 14 · QA & Testing · 3 people · Builds from W2**
 
-> **Scope.** Feature teams test their own unit logic — every team's "Definition of ready to merge" already requires a happy path, an auth test, and one abuse test. Team 14 owns everything that *crosses* team boundaries: full-journey E2E flows, regression catching, cross-feature integration scenarios, and the QA checklist that reviewers use before merging.
+> **Scope.** Feature teams test their own unit logic — every team's "Definition of ready to merge" already requires a happy path, an auth test, and one abuse test. Team 14 owns everything that _crosses_ team boundaries: full-journey E2E flows, regression catching, cross-feature integration scenarios, and the QA checklist that reviewers use before merging.
 
 You are the safety net the whole batch shares. When a fix in Team 05 silently breaks Team 12's at-risk calculation, you catch it before `main` does.
 
@@ -21,11 +21,11 @@ packages/*/src/                     — same rule
 
 **Your relationship with Team 01 is a clean split:**
 
-| Team 01 owns | Team 14 owns |
-|---|---|
-| The Playwright harness (install, config, `playwright.config.ts`, CI step) | The E2E *scenarios* for every cross-team flow |
-| The unit test harness (Jest config, shared fixtures, test utilities) | Filing bugs when cross-team flows break; triage and regression tracking |
-| CI green on `main` | Pre-release QA sign-off |
+| Team 01 owns                                                              | Team 14 owns                                                            |
+| ------------------------------------------------------------------------- | ----------------------------------------------------------------------- |
+| The Playwright harness (install, config, `playwright.config.ts`, CI step) | The E2E _scenarios_ for every cross-team flow                           |
+| The unit test harness (Jest config, shared fixtures, test utilities)      | Filing bugs when cross-team flows break; triage and regression tracking |
+| CI green on `main`                                                        | Pre-release QA sign-off                                                 |
 
 ## What to build
 
@@ -33,15 +33,15 @@ packages/*/src/                     — same rule
 
 Each scenario covers a flow that spans two or more teams' code. These are the tests no single feature team would naturally write:
 
-| Scenario | Teams crossed |
-|---|---|
-| Sign up → verify → sign in as student | 03 · 02 |
-| Faculty publishes assignment → student submits → faculty grades → student sees mark | 05 · 10 |
-| Admin marks attendance → student attendance % updates → AI assistant quotes it | 06 · 13 |
-| Admin posts announcement → student sees notification bell badge | 08 · 09 |
-| Admin imports batch CSV → student can sign in under new batch | 10 · 03 |
-| Student at 33% (seed: student04) appears on at-risk report | 06 · 12 |
-| Material uploaded by faculty → student can search and download it via AI assistant | 04 · 13 |
+| Scenario                                                                            | Teams crossed |
+| ----------------------------------------------------------------------------------- | ------------- |
+| Sign up → verify → sign in as student                                               | 03 · 02       |
+| Faculty publishes assignment → student submits → faculty grades → student sees mark | 05 · 10       |
+| Admin marks attendance → student attendance % updates → AI assistant quotes it      | 06 · 13       |
+| Admin posts announcement → student sees notification bell badge                     | 08 · 09       |
+| Admin imports batch CSV → student can sign in under new batch                       | 10 · 03       |
+| Student at 33% (seed: student04) appears on at-risk report                          | 06 · 12       |
+| Material uploaded by faculty → student can search and download it via AI assistant  | 04 · 13       |
 
 Start with the first two. The seed gives you all the data you need on day one.
 
@@ -99,14 +99,14 @@ Two rules keep it that way:
 
 ## Agreements (not dependencies)
 
-Four decisions that two or more teams must make the *same way*. Settle them in week 1 and write them into `docs/` — nobody is blocked, but disagreeing is expensive to unpick later.
+Four decisions that two or more teams must make the _same way_. Settle them in week 1 and write them into `docs/` — nobody is blocked, but disagreeing is expensive to unpick later.
 
-| Agreement | Teams | Owner |
-|---|---|---|
+| Agreement                                                                                | Teams             | Owner  |
+| ---------------------------------------------------------------------------------------- | ----------------- | ------ |
 | The attendance-percentage formula (does LATE count? does EXCUSED leave the denominator?) | 06 · 12 · 13 · 09 | **06** |
-| The batch timezone rule, and what "today" means | 07 · 06 · 09 | **07** |
-| One chart library, requested once | 09 · 12 | **12** |
-| One Cloudinary signed-upload helper, written once | 04 · 05 · 09 | **04** |
+| The batch timezone rule, and what "today" means                                          | 07 · 06 · 09      | **07** |
+| One chart library, requested once                                                        | 09 · 12           | **12** |
+| One Cloudinary signed-upload helper, written once                                        | 04 · 05 · 09      | **04** |
 
 ## Definition of ready to merge
 

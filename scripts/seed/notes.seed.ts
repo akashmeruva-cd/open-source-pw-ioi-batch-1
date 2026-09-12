@@ -1,22 +1,18 @@
-import { Bookmark } from '@repo/models/bookmark'
-import { Material } from '@repo/models/material'
-import { Note } from '@repo/models/note'
+import { getDb } from '@repo/models/db'
+import { bookmarks, materials, notes } from '@repo/models/schema'
 import type { CoreSeed } from './core.seed'
 
 /**
  * Owner: Team 09 — Student Profile & Notes.
- *
- * Notes and bookmarks for the first few students. Everything here belongs to a
- * specific student, which makes this the easiest seed to write a privacy test
- * against: student02 must never see student01's notes.
  */
 export async function seedNotes(core: CoreSeed) {
+  const db = getDb()
   const students = core.students.slice(0, 3)
 
-  const notes = students.flatMap((student, i) =>
+  const noteValues = students.flatMap((student, i) =>
     core.subjects.slice(0, 3).map((subject, j) => ({
-      studentId: student._id,
-      subjectId: subject._id,
+      studentId: student.id,
+      subjectId: subject.id,
       sessionId: null,
       title: `${subject.code} — revision points`,
       body:
@@ -27,21 +23,25 @@ export async function seedNotes(core: CoreSeed) {
     })),
   )
 
-  await Note.insertMany(notes)
+  const insertedNotes = await db.insert(notes).values(noteValues).returning()
 
-  // Bookmark the first two materials of each subject for the first student.
-  const materials = await Material.find({}).limit(6).lean()
+  // Bookmark the first two materials of each subject for the first student
+  const matList = await db.select().from(materials).limit(6)
   const first = students[0]
 
-  const bookmarks = first
-    ? materials.slice(0, 4).map((m) => ({
-        studentId: first._id,
+  const bookmarkValues = first
+    ? matList.slice(0, 4).map((m) => ({
+        studentId: first.id,
         entityType: 'MATERIAL' as const,
-        entityId: m._id,
+        entityId: m.id,
       }))
     : []
 
-  if (bookmarks.length) await Bookmark.insertMany(bookmarks)
+  let bookmarkCount = 0
+  if (bookmarkValues.length > 0) {
+    const insertedBookmarks = await db.insert(bookmarks).values(bookmarkValues).returning()
+    bookmarkCount = insertedBookmarks.length
+  }
 
-  return { notes: notes.length, bookmarks: bookmarks.length }
+  return { notes: insertedNotes.length, bookmarks: bookmarkCount }
 }

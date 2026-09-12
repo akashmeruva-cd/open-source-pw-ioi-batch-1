@@ -17,16 +17,20 @@
     "seed": "turbo run build --filter=@repo/models --filter=@repo/auth && tsx scripts/seed/index.ts",
     "format": "prettier --write \"**/*.{ts,tsx,js,mjs,json,md}\"",
     "format:check": "prettier --check \"**/*.{ts,tsx,js,mjs,json,md}\"",
+    "db:push": "drizzle-kit push --config=packages/models/drizzle.config.ts",
     "db:local": "node scripts/dev-db.mjs"
   },
   "dependencies": {
     "@repo/auth": "*",
-    "@repo/models": "*"
+    "@repo/models": "*",
+    "@supabase/supabase-js": "^2.112.4",
+    "drizzle-orm": "^0.45.2",
+    "postgres": "^3.4.9"
   },
   "devDependencies": {
     "@types/node": "^22.10.2",
     "dotenv": "^16.4.7",
-    "mongodb-memory-server": "^10.1.2",
+    "drizzle-kit": "^0.31.10",
     "prettier": "^3.4.2",
     "tsx": "^4.19.2",
     "turbo": "^2.3.3",

@@ -119,9 +119,8 @@ apps/web-student/
 
 ## Adding a model
 
-One file per model in `packages/models/src/`. Register it with `defineModel()`,
-never `mongoose.model()` directly. **No barrel file** — import subpaths:
-`import { Material } from '@repo/models/material'`.
+Add your table definition to `packages/models/src/schema.ts` and re-export it from a dedicated file in `packages/models/src/`. Import subpaths:
+`import { materials } from '@repo/models/material'`.
 
 ---
 
@@ -158,12 +157,7 @@ npm run test
 
 Every endpoint needs three tests: the happy path, the auth requirement, and one
 way it can be abused. `apps/api-student/src/modules/auth/auth.test.ts` shows the
-shape — including why the "wrong password" and "unknown email" errors must be
-identical.
-
-Tests run against a real MongoDB in memory, not mocks. Mocked Mongoose lies
-about indexes, validation and aggregation — exactly the things that break in
-production.
+shape.
 
 ---
 

@@ -2,7 +2,7 @@
 
 > **Architecture changed.** The tools originally called the other teams' HTTP endpoints, which made you dependent on five teams and unable to start until week 5. Tools now **read models directly**, so you can build the whole thing from week 2 against seeded data. Read the security note below carefully — this trade is the reason it matters.
 
-A chat panel where a student asks *"what's my attendance in DBMS?"*, *"what's due this week?"*, *"find the slides on normalization"* — and gets a real answer from their real data.
+A chat panel where a student asks _"what's my attendance in DBMS?"_, _"what's due this week?"_, _"find the slides on normalization"_ — and gets a real answer from their real data.
 
 ## What you own
 
@@ -95,14 +95,14 @@ Two rules keep it that way:
 
 ## Agreements (not dependencies)
 
-Four decisions that two or more teams must make the *same way*. Settle them in week 1 and write them into `docs/` — nobody is blocked, but disagreeing is expensive to unpick later.
+Four decisions that two or more teams must make the _same way_. Settle them in week 1 and write them into `docs/` — nobody is blocked, but disagreeing is expensive to unpick later.
 
-| Agreement | Teams | Owner |
-|---|---|---|
+| Agreement                                                                                | Teams             | Owner  |
+| ---------------------------------------------------------------------------------------- | ----------------- | ------ |
 | The attendance-percentage formula (does LATE count? does EXCUSED leave the denominator?) | 06 · 12 · 13 · 09 | **06** |
-| The batch timezone rule, and what "today" means | 07 · 06 · 09 | **07** |
-| One chart library, requested once | 09 · 12 | **12** |
-| One Cloudinary signed-upload helper, written once | 04 · 05 · 09 | **04** |
+| The batch timezone rule, and what "today" means                                          | 07 · 06 · 09      | **07** |
+| One chart library, requested once                                                        | 09 · 12           | **12** |
+| One Cloudinary signed-upload helper, written once                                        | 04 · 05 · 09      | **04** |
 
 ## Definition of ready to merge
 

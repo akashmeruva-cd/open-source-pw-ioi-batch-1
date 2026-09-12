@@ -1,5 +1,6 @@
 import 'dotenv/config'
-import { connectToDatabase, disconnectFromDatabase, mongoose } from '@repo/models/db'
+import { sql } from 'drizzle-orm'
+import { disconnectFromDatabase, getDb } from '@repo/models/db'
 import { SEED_PASSWORD, seedCore } from './core.seed'
 import { seedMaterials } from './materials.seed'
 import { seedAssignments } from './assignments.seed'
@@ -12,33 +13,49 @@ import { seedNotes } from './notes.seed'
  *
  * Run with `npm run seed` from the repo root. It **wipes the database first**,
  * which is why it refuses to touch anything that looks like production.
- *
- * Every collection is populated on purpose. No team should ever have to wait for
- * another team to ship before it has realistic data to build against — that is
- * what keeps thirteen teams working in parallel.
  */
 
 function assertNotProduction(uri: string) {
   if (process.env.NODE_ENV === 'production' || /prod/i.test(uri)) {
     throw new Error(
       'Refusing to seed: this connection string looks like production. ' +
-        'Point MONGODB_URI at tracker_dev.',
+        'Point DATABASE_URL at your local/dev database.',
     )
   }
 }
 
 async function main() {
-  const uri = process.env.MONGODB_URI
-  if (!uri) throw new Error('MONGODB_URI is not set. Copy .env.example to .env and fill it in.')
+  const databaseUrl = process.env.DATABASE_URL
+  if (!databaseUrl) {
+    throw new Error('DATABASE_URL is not set. Copy .env.example to .env and fill it in.')
+  }
 
-  assertNotProduction(uri)
-  await connectToDatabase(uri)
+  assertNotProduction(databaseUrl)
+  const db = getDb()
 
-  const dbName = mongoose.connection.name
-  console.log(`Seeding "${dbName}" — dropping existing collections first.`)
+  console.log('Seeding PostgreSQL database — truncating existing tables first.')
 
-  const collections = await mongoose.connection.db?.collections()
-  await Promise.all((collections ?? []).map((c) => c.deleteMany({})))
+  // Truncate all tables in cascade order
+  await db.execute(sql`
+    TRUNCATE TABLE
+      conversation_messages,
+      conversations,
+      audit_logs,
+      bookmarks,
+      notes,
+      notifications,
+      announcements,
+      submissions,
+      assignments,
+      materials,
+      attendance,
+      class_sessions,
+      enrollments,
+      subjects,
+      batches,
+      profiles
+    CASCADE;
+  `)
 
   const now = new Date()
 
@@ -48,7 +65,6 @@ async function main() {
   const attendance = await seedAttendance(core, now)
   const announcements = await seedAnnouncements(core, now)
   const notes = await seedNotes(core)
-  // await seedYourFeature(core, now)   → add one line, alphabetical, keep it deterministic
 
   console.log(
     [

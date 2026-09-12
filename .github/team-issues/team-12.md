@@ -2,7 +2,7 @@
 
 > **Scope clarified.** You were the team most at risk of waiting on others. You are not any more: the seed ships **1,200 attendance records and 221 graded submissions** on day one. You read those models directly and can build every pipeline in week 2, before Teams 05 and 06 ship a single endpoint.
 
-Faculty need to know which students are in trouble while there is still time to help. That is the product — not charts, but *"these six students need a conversation this week."*
+Faculty need to know which students are in trouble while there is still time to help. That is the product — not charts, but _"these six students need a conversation this week."_
 
 ## What you own
 
@@ -25,13 +25,13 @@ You **read** `Attendance`, `Submission`, `Assignment`, `Enrollment` and `User`. 
 
 **Endpoints**
 
-| Method | Path |
-|---|---|
-| GET | `/api/analytics/batch/:batchId` |
-| GET | `/api/analytics/subject/:subjectId` |
-| GET | `/api/analytics/at-risk?batchId=&threshold=75` |
-| GET | `/api/analytics/export/attendance.csv` |
-| GET | `/api/analytics/export/grades.csv` |
+| Method | Path                                           |
+| ------ | ---------------------------------------------- |
+| GET    | `/api/analytics/batch/:batchId`                |
+| GET    | `/api/analytics/subject/:subjectId`            |
+| GET    | `/api/analytics/at-risk?batchId=&threshold=75` |
+| GET    | `/api/analytics/export/attendance.csv`         |
+| GET    | `/api/analytics/export/grades.csv`             |
 
 ## The technical heart of this team
 
@@ -72,14 +72,14 @@ Two rules keep it that way:
 
 ## Agreements (not dependencies)
 
-Four decisions that two or more teams must make the *same way*. Settle them in week 1 and write them into `docs/` — nobody is blocked, but disagreeing is expensive to unpick later.
+Four decisions that two or more teams must make the _same way_. Settle them in week 1 and write them into `docs/` — nobody is blocked, but disagreeing is expensive to unpick later.
 
-| Agreement | Teams | Owner |
-|---|---|---|
+| Agreement                                                                                | Teams             | Owner  |
+| ---------------------------------------------------------------------------------------- | ----------------- | ------ |
 | The attendance-percentage formula (does LATE count? does EXCUSED leave the denominator?) | 06 · 12 · 13 · 09 | **06** |
-| The batch timezone rule, and what "today" means | 07 · 06 · 09 | **07** |
-| One chart library, requested once | 09 · 12 | **12** |
-| One Cloudinary signed-upload helper, written once | 04 · 05 · 09 | **04** |
+| The batch timezone rule, and what "today" means                                          | 07 · 06 · 09      | **07** |
+| One chart library, requested once                                                        | 09 · 12           | **12** |
+| One Cloudinary signed-upload helper, written once                                        | 04 · 05 · 09      | **04** |
 
 ## Definition of ready to merge
 

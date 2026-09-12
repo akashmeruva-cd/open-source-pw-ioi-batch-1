@@ -18,9 +18,10 @@
          │  │ Claude API│            │
          │  └───────────┘            │
          └───────────┬───────────────┘
-              ┌──────▼───────┐    ┌──────────────┐
-              │ MongoDB Atlas│    │  Cloudinary  │
-              └──────────────┘    └──────────────┘
+              ┌───────────────────────────┐
+              │         Supabase          │
+              │ (PostgreSQL + Auth + Storage)
+              └───────────────────────────┘
 ```
 
 ## Why two APIs
@@ -48,10 +49,10 @@ Full reasoning: [adr/0001-separate-admin-api.md](adr/0001-separate-admin-api.md)
 Take `GET /api/attendance/me` on the student API:
 
 1. **`app.ts`** — helmet, CORS, JSON body parsing, cookie parsing.
-2. **DB middleware** — `connectToDatabase()` resolves the cached Mongoose
+2. **DB middleware** — `getDb()` initialises / resolves the cached Drizzle
    connection. On a warm serverless invocation this is a no-op.
 3. **`modules.ts`** — the router registered at `/api/attendance` handles it.
-4. **`requireAuth`** — verifies the Bearer JWT and sets `req.auth`. This is the
+4. **`requireAuth`** — verifies the Supabase JWT and sets `req.auth`. This is the
    only trustworthy source of the caller's identity.
 5. **`validate(schema)`** — parses `req.query` against the Zod schema from
    `packages/validation`. After this, the handler can trust its input.
@@ -63,23 +64,19 @@ Take `GET /api/attendance/me` on the student API:
 
 ## Auth
 
-Two tokens, doing different jobs:
+Managed by **Supabase Auth** with session verification in `@repo/auth`:
 
-|           | Access token             | Refresh token                          |
-| --------- | ------------------------ | -------------------------------------- |
-| What      | Signed JWT               | Random 48-byte string                  |
-| Lives     | 15 minutes               | 7 days                                 |
-| Stored    | In memory in the browser | httpOnly cookie; SHA-256 hash in Mongo |
-| Sent as   | `Authorization: Bearer`  | Automatically, by the browser          |
-| Revocable | No                       | Yes                                    |
+|           | Access token             | Refresh token                        |
+| --------- | ------------------------ | ------------------------------------ |
+| What      | Supabase JWT             | Supabase Refresh Token               |
+| Lives     | 1 hour                   | 7 days                               |
+| Stored    | In memory in the browser | httpOnly cookie; managed by Supabase |
+| Sent as   | `Authorization: Bearer`  | Automatically, by the browser        |
+| Revocable | No (short-lived)         | Yes (via Supabase Auth API)          |
 
 The access token is short-lived precisely because it cannot be revoked. It is
 kept in a JavaScript variable rather than `localStorage` — anything readable by
 JavaScript is readable by an XSS payload.
-
-Refresh tokens **rotate**: presenting one revokes it and issues a new one. A
-token presented twice fails the second time, which is how a stolen token becomes
-visible. `packages/auth/src/session.ts` implements this; both APIs use it.
 
 ### Why the frontend guard is not in `middleware.ts`
 
@@ -95,19 +92,16 @@ rewrite, this should be revisited.
 
 ## Data
 
-Mongoose schemas in `packages/models/src/`, one file per model, each owned by
-one team. Two things to know:
+Drizzle ORM tables in `packages/models/src/schema.ts`, with re-exports per model. Two things to know:
 
-**No barrel file.** There is no `models/index.ts` re-exporting everything —
-that would be a file every team edits. Import subpaths instead:
-`import { User } from '@repo/models/user'`.
+**Subpath exports.** Import subpaths directly:
+`import { profiles } from '@repo/models/user'`.
 
-**Connection caching.** `db.ts` stashes a single connection promise on
-`globalThis`. Without it, every warm serverless invocation would open a new
-connection and exhaust Atlas M0's cap in minutes.
+**Connection caching.** `db.ts` stashes connection instances on
+`globalThis` so warm serverless invocations reuse connection pools.
 
-The two collections that grow fastest are `Attendance` (students × sessions) and
-`Submission` (students × assignments). Both have unique compound indexes that
+The two tables that grow fastest are `attendance` (students × sessions) and
+`submissions` (students × assignments). Both have unique compound indexes that
 make duplicate rows impossible rather than merely unlikely.
 
 ## The AI assistant

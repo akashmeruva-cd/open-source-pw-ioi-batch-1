@@ -43,12 +43,12 @@ export default materialsModule
 
 ## Who builds what
 
-| Module | Team | Endpoints |
-|---|---|---|
-| `auth/` | 03 | `POST /register /login /refresh /logout`, `GET /me` — **built, use as reference** |
-| `materials/` | 04 | `GET /`, `GET /:id`, `GET /search`, `POST /upload-signature` |
-| `assignments/` | 05 | `GET /`, `GET /upcoming`, `GET /:id`, `POST /:id/submissions`, `GET /me/grades` |
-| `attendance/` | 06 | `GET /me`, `GET /me/summary`, `GET /subject/:subjectId` |
-| `sessions/` | 07 | `GET /timetable`, `GET /today`, `GET /:id` |
-| `announcements/` | 08 | `GET /`, `GET /notifications`, `PATCH /notifications/:id/read` |
-| `assistant/` | 13 | `POST /chat` (SSE), `GET /conversations` |
+| Module           | Team | Endpoints                                                                         |
+| ---------------- | ---- | --------------------------------------------------------------------------------- |
+| `auth/`          | 03   | `POST /register /login /refresh /logout`, `GET /me` — **built, use as reference** |
+| `materials/`     | 04   | `GET /`, `GET /:id`, `GET /search`, `POST /upload-signature`                      |
+| `assignments/`   | 05   | `GET /`, `GET /upcoming`, `GET /:id`, `POST /:id/submissions`, `GET /me/grades`   |
+| `attendance/`    | 06   | `GET /me`, `GET /me/summary`, `GET /subject/:subjectId`                           |
+| `sessions/`      | 07   | `GET /timetable`, `GET /today`, `GET /:id`                                        |
+| `announcements/` | 08   | `GET /`, `GET /notifications`, `PATCH /notifications/:id/read`                    |
+| `assistant/`     | 13   | `POST /chat` (SSE), `GET /conversations`                                          |

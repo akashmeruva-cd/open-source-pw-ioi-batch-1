@@ -21,21 +21,21 @@ apps/web-student/app/(dashboard)/assignments/
 
 **Endpoints**
 
-| API | Method | Path |
-|---|---|---|
-| student | GET | `/api/assignments?subjectId=` |
-| student | GET | `/api/assignments/upcoming?days=7` |
-| student | GET | `/api/assignments/:id` |
-| student | POST | `/api/assignments/:id/submissions` |
-| student | GET | `/api/submissions/me/grades` |
-| admin | POST | `/api/assignments` · PATCH `/:id` · POST `/:id/publish` |
-| admin | GET | `/api/assignments/:id/submissions` |
-| admin | PATCH | `/api/submissions/:id/grade` |
+| API     | Method | Path                                                    |
+| ------- | ------ | ------------------------------------------------------- |
+| student | GET    | `/api/assignments?subjectId=`                           |
+| student | GET    | `/api/assignments/upcoming?days=7`                      |
+| student | GET    | `/api/assignments/:id`                                  |
+| student | POST   | `/api/assignments/:id/submissions`                      |
+| student | GET    | `/api/submissions/me/grades`                            |
+| admin   | POST   | `/api/assignments` · PATCH `/:id` · POST `/:id/publish` |
+| admin   | GET    | `/api/assignments/:id/submissions`                      |
+| admin   | PATCH  | `/api/submissions/:id/grade`                            |
 
 ## The rules that will bite you
 
 - **Late detection is server-side.** Compare `submittedAt` against `dueAt` on the server and set status to `LATE`. Never let the client tell you whether it was on time.
-- **One submission row per student per assignment** — there is a unique compound index on `{assignmentId, studentId}`. Resubmission *updates* the row, it does not insert a second one.
+- **One submission row per student per assignment** — there is a unique compound index on `{assignmentId, studentId}`. Resubmission _updates_ the row, it does not insert a second one.
 - **A student may only read their own submission.** The student id comes from `currentUser(req)`, never from the URL. This is the single most likely place in the whole project to leak another student's work — write the test for it first.
 - **Unpublished assignments are invisible to students.** Check `isPublished` in the student API, not just in the UI.
 - **Faculty grade only their own subjects.** Admin can grade anything.
@@ -67,14 +67,14 @@ Two rules keep it that way:
 
 ## Agreements (not dependencies)
 
-Four decisions that two or more teams must make the *same way*. Settle them in week 1 and write them into `docs/` — nobody is blocked, but disagreeing is expensive to unpick later.
+Four decisions that two or more teams must make the _same way_. Settle them in week 1 and write them into `docs/` — nobody is blocked, but disagreeing is expensive to unpick later.
 
-| Agreement | Teams | Owner |
-|---|---|---|
+| Agreement                                                                                | Teams             | Owner  |
+| ---------------------------------------------------------------------------------------- | ----------------- | ------ |
 | The attendance-percentage formula (does LATE count? does EXCUSED leave the denominator?) | 06 · 12 · 13 · 09 | **06** |
-| The batch timezone rule, and what "today" means | 07 · 06 · 09 | **07** |
-| One chart library, requested once | 09 · 12 | **12** |
-| One Cloudinary signed-upload helper, written once | 04 · 05 · 09 | **04** |
+| The batch timezone rule, and what "today" means                                          | 07 · 06 · 09      | **07** |
+| One chart library, requested once                                                        | 09 · 12           | **12** |
+| One Cloudinary signed-upload helper, written once                                        | 04 · 05 · 09      | **04** |
 
 ## Definition of ready to merge
 

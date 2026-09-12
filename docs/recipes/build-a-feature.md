@@ -67,38 +67,34 @@ a teammate for the whole weekend.
 
 ## 2. The model
 
-`packages/models/src/material.ts` already exists — most models do. If yours
-doesn't:
+Add your table definition to `packages/models/src/schema.ts`:
 
 ```ts
-import { Schema, type Types } from 'mongoose'
-import { defineModel } from './define-model'
+import { pgTable, uuid, text, timestamp, index } from 'drizzle-orm/pg-core'
+import { profiles } from './schema'
 
-export interface ThingDoc {
-  _id: Types.ObjectId
-  ownerId: Types.ObjectId
-  title: string
-  createdAt: Date
-  updatedAt: Date
-}
-
-const thingSchema = new Schema<ThingDoc>(
+export const things = pgTable(
+  'things',
   {
-    ownerId: { type: Schema.Types.ObjectId, ref: 'User', required: true, index: true },
-    title: { type: String, required: true, trim: true },
+    id: uuid('id').defaultRandom().primaryKey(),
+    ownerId: uuid('owner_id')
+      .notNull()
+      .references(() => profiles.id),
+    title: text('title').notNull(),
+    createdAt: timestamp('created_at', { withTimezone: true }).notNull().defaultNow(),
+    updatedAt: timestamp('updated_at', { withTimezone: true }).notNull().defaultNow(),
   },
-  { timestamps: true },
+  (t) => [index('things_owner_created_idx').on(t.ownerId, t.createdAt)],
 )
-
-// Index the fields you filter and sort by — this is the difference between a
-// fast query and a full collection scan once there is real data.
-thingSchema.index({ ownerId: 1, createdAt: -1 })
-
-export const Thing = defineModel<ThingDoc>('Thing', thingSchema)
 ```
 
-Two rules: `defineModel`, never `mongoose.model()` directly; and no barrel file —
-import `@repo/models/material`.
+And re-export it from `packages/models/src/thing.ts`:
+
+```ts
+export { things } from './schema'
+```
+
+Rule: import via subpaths: `import { things } from '@repo/models/thing'`.
 
 ---
 

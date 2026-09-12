@@ -1,9 +1,10 @@
 import { z } from 'zod'
 
-/** A MongoDB ObjectId as it appears over the wire. */
-export const objectIdSchema = z
-  .string()
-  .regex(/^[0-9a-fA-F]{24}$/, 'must be a valid id')
+/** A UUID as it appears over the wire (PostgreSQL / Supabase standard). */
+export const uuidSchema = z.string().uuid('must be a valid UUID')
+
+/** Alias for backward compatibility with existing feature imports. */
+export const objectIdSchema = uuidSchema
 
 export const paginationQuerySchema = z.object({
   page: z.coerce.number().int().min(1).default(1),

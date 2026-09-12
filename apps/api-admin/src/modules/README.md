@@ -26,14 +26,14 @@ question anyone asks when something goes wrong.
 
 ## Who builds what
 
-| Module | Team | Endpoints |
-|---|---|---|
-| `auth/` | 03 | `POST /login /refresh /logout`, `GET /me` — **built, use as reference** |
-| `batches/` | 10 | CRUD for batches, subjects, enrollments, `POST /students/import` (CSV) |
-| `users/` | 11 | list/create/update users, role assignment, deactivate, `GET /audit-log` |
-| `materials/` | 04 | `POST /` upload, `PATCH /:id`, `DELETE /:id`, `POST /upload-signature` |
-| `assignments/` | 05 | create/publish assignments, list submissions, `PATCH /submissions/:id/grade` |
-| `attendance/` | 06 | `POST /sessions/:id/mark` (bulk), `PATCH /:id` corrections |
-| `sessions/` | 07 | timetable builder CRUD |
-| `announcements/` | 08 | compose, pin, delete |
-| `analytics/` | 12 | batch dashboards, at-risk students, `GET /export/*.csv` |
+| Module           | Team | Endpoints                                                                    |
+| ---------------- | ---- | ---------------------------------------------------------------------------- |
+| `auth/`          | 03   | `POST /login /refresh /logout`, `GET /me` — **built, use as reference**      |
+| `batches/`       | 10   | CRUD for batches, subjects, enrollments, `POST /students/import` (CSV)       |
+| `users/`         | 11   | list/create/update users, role assignment, deactivate, `GET /audit-log`      |
+| `materials/`     | 04   | `POST /` upload, `PATCH /:id`, `DELETE /:id`, `POST /upload-signature`       |
+| `assignments/`   | 05   | create/publish assignments, list submissions, `PATCH /submissions/:id/grade` |
+| `attendance/`    | 06   | `POST /sessions/:id/mark` (bulk), `PATCH /:id` corrections                   |
+| `sessions/`      | 07   | timetable builder CRUD                                                       |
+| `announcements/` | 08   | compose, pin, delete                                                         |
+| `analytics/`     | 12   | batch dashboards, at-risk students, `GET /export/*.csv`                      |

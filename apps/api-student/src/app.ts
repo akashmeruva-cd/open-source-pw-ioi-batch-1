@@ -3,7 +3,7 @@ import cors from 'cors'
 import express from 'express'
 import helmet from 'helmet'
 import { createErrorHandler, notFoundHandler } from '@repo/http/error-middleware'
-import { connectToDatabase } from '@repo/models/db'
+import { getDb } from '@repo/models/db'
 import { createLocalUploadRouter } from '@repo/services/storage-local'
 import { modules } from './modules'
 
@@ -30,16 +30,22 @@ export function createApp() {
   app.use(express.json({ limit: '1mb' }))
   app.use(cookieParser())
 
-  // Connect (or reuse the cached connection) before any handler touches a model.
+  // Eagerly initialise the Drizzle connection on the first request. This is
+  // cheap on warm serverless invocations because the connection is cached.
   app.use((_req, _res, next) => {
-    connectToDatabase().then(() => next(), next)
+    try {
+      getDb()
+      next()
+    } catch (err) {
+      next(err)
+    }
   })
 
   app.get('/api/health', (_req, res) => {
     res.json({ ok: true, service: 'api-student', time: new Date().toISOString() })
   })
 
-  // Local file storage only. On Vercel STORAGE_DRIVER=cloudinary, so this is
+  // Local file storage only. On Vercel STORAGE_DRIVER=supabase, so this is
   // never mounted there — serverless filesystems are ephemeral and per-instance.
   if ((process.env.STORAGE_DRIVER || 'local') === 'local') {
     app.use('/api/uploads', createLocalUploadRouter())

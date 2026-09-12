@@ -4,7 +4,7 @@ import express from 'express'
 import helmet from 'helmet'
 import { requireAuth, requireRole } from '@repo/auth/middleware'
 import { createErrorHandler, notFoundHandler } from '@repo/http/error-middleware'
-import { connectToDatabase } from '@repo/models/db'
+import { getDb } from '@repo/models/db'
 import { createLocalUploadRouter } from '@repo/services/storage-local'
 import { ADMIN_PORTAL_ROLES } from '@repo/validation/enums'
 import { modules } from './modules'
@@ -34,7 +34,12 @@ export function createApp() {
   app.use(cookieParser())
 
   app.use((_req, _res, next) => {
-    connectToDatabase().then(() => next(), next)
+    try {
+      getDb()
+      next()
+    } catch (err) {
+      next(err)
+    }
   })
 
   app.get('/api/health', (_req, res) => {

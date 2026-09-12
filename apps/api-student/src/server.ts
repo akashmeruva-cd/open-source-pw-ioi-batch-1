@@ -20,5 +20,7 @@ const port = Number(process.env.PORT ?? 4000)
 
 createApp().listen(port, () => {
   // eslint-disable-next-line no-console
-  console.log(`[api-student] listening on http://localhost:${port}`)
+  console.log(
+    `[api-student] API running on http://localhost:${port} -> Open Student Portal at http://localhost:3000`,
+  )
 })
