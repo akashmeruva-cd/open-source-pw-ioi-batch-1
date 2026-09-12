@@ -1,6 +1,8 @@
 import type { NavItem } from '../nav-item'
 import dashboard from './dashboard'
 
+import profile from './profile'
+
 /**
  * APPEND-ONLY REGISTRY — the sidebar equivalent of `api-student/src/modules.ts`.
  *
@@ -10,12 +12,7 @@ import dashboard from './dashboard'
  */
 const items: NavItem[] = [
   dashboard,
-  // announcements,  → Team 08
-  // assignments,    → Team 05
-  // assistant,      → Team 13
-  // attendance,     → Team 06
-  // materials,      → Team 04
-  // timetable,      → Team 07
+  profile,
 ]
 
 export const navItems = items.sort((a, b) => a.order - b.order)
