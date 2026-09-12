@@ -1,7 +1,7 @@
 'use client'
 
 import { useState } from 'react'
-import { Card, CardHeader } from '@repo/ui/card'
+import { Card } from '@repo/ui/card'
 import { Button } from '@repo/ui/button'
 import { Badge } from '@repo/ui/badge'
 import { Skeleton } from '@repo/ui/skeleton'
@@ -34,9 +34,10 @@ export default function SubjectsPage() {
     try {
       await deleteSubject(id)
       void refetch()
-    } catch (err: any) {
-      alert(err.message ?? 'Failed to delete subject')
-    } finally {
+    }catch (err: unknown) {
+      const message = err instanceof Error ? err.message : 'Failed to delete subject'
+      alert(message)
+    }finally {
       setDeleting(null)
     }
   }

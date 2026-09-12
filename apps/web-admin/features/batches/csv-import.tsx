@@ -99,9 +99,13 @@ export function CsvImportModal({
         const result = await importStudentsDryRun(batchId, rows)
         setPreview(result)
         setStep('preview')
-      } catch (err: any) {
-        setError(err.message ?? 'Failed to validate CSV')
-      } finally {
+      } catch (err: unknown) {
+  setError(
+    err instanceof Error
+      ? err.message
+      : 'Failed to validate CSV',
+  )
+} finally {
         setLoading(false)
       }
     }
@@ -116,9 +120,13 @@ export function CsvImportModal({
       setImportResult(result)
       setStep('done')
       onSuccess()
-    } catch (err: any) {
-      setError(err.message ?? 'Import failed')
-    } finally {
+    } catch (err: unknown) {
+  setError(
+    err instanceof Error
+      ? err.message
+      : 'Import failed',
+  )
+} finally {
       setLoading(false)
     }
   }

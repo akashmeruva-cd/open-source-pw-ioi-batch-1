@@ -2,9 +2,14 @@
 
 import { useState, useEffect, useCallback } from 'react'
 import { api } from '@/lib/api-client'
-
-// ─── Types ───────────────────────────────────────────────────────────────────
-
+export type CreateBatchInput = {
+  name: string
+  year: number
+  program: string
+  startDate: string
+  endDate: string | null
+  isActive?: boolean
+}
 export interface Batch {
   _id: string
   name: string
@@ -22,7 +27,11 @@ export interface Subject {
   name: string
   code: string
   batchId: string
-  facultyId: { _id: string; name: string; email: string } | null
+  facultyId: {
+    _id: string
+    name: string
+    email: string
+  } | null
   credits: number
   createdAt: string
   updatedAt: string
@@ -36,29 +45,68 @@ export interface Enrollment {
   createdAt: string
 }
 
-// ─── Hooks ───────────────────────────────────────────────────────────────────
-
 export function useBatches() {
   const [batches, setBatches] = useState<Batch[]>([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
 
-  const fetchBatches = useCallback(async () => {
+  const refetch = useCallback(async () => {
     setLoading(true)
     setError(null)
+
     try {
       const data = await api.get<Batch[]>('/api/batches')
       setBatches(data)
-    } catch (err: any) {
-      setError(err.message ?? 'Failed to fetch batches')
+    } catch (err: unknown) {
+      setError(
+        err instanceof Error
+          ? err.message
+          : 'Failed to fetch batches',
+      )
     } finally {
       setLoading(false)
     }
   }, [])
 
-  useEffect(() => { void fetchBatches() }, [fetchBatches])
+  useEffect(() => {
+    let cancelled = false
 
-  return { batches, loading, error, refetch: fetchBatches }
+    const load = async () => {
+      try {
+        const data = await api.get<Batch[]>('/api/batches')
+
+        if (cancelled) return
+
+        setBatches(data)
+        setError(null)
+      } catch (err: unknown) {
+        if (cancelled) return
+
+        setError(
+          err instanceof Error
+            ? err.message
+            : 'Failed to fetch batches',
+        )
+      } finally {
+        if (!cancelled) {
+          setLoading(false)
+        }
+      }
+    }
+
+    void load()
+
+    return () => {
+      cancelled = true
+    }
+  }, [])
+
+  return {
+    batches,
+    loading,
+    error,
+    refetch,
+  }
 }
 
 export function useSubjects() {
@@ -66,31 +114,73 @@ export function useSubjects() {
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
 
-  const fetchSubjects = useCallback(async () => {
+  const refetch = useCallback(async () => {
     setLoading(true)
     setError(null)
+
     try {
       const data = await api.get<Subject[]>('/api/subjects')
       setSubjects(data)
-    } catch (err: any) {
-      setError(err.message ?? 'Failed to fetch subjects')
+    } catch (err: unknown) {
+      setError(
+        err instanceof Error
+          ? err.message
+          : 'Failed to fetch subjects',
+      )
     } finally {
       setLoading(false)
     }
   }, [])
 
-  useEffect(() => { void fetchSubjects() }, [fetchSubjects])
+  useEffect(() => {
+    let cancelled = false
 
-  return { subjects, loading, error, refetch: fetchSubjects }
+    const load = async () => {
+      try {
+        const data = await api.get<Subject[]>('/api/subjects')
+
+        if (cancelled) return
+
+        setSubjects(data)
+        setError(null)
+      } catch (err: unknown) {
+        if (cancelled) return
+
+        setError(
+          err instanceof Error
+            ? err.message
+            : 'Failed to fetch subjects',
+        )
+      } finally {
+        if (!cancelled) {
+          setLoading(false)
+        }
+      }
+    }
+
+    void load()
+
+    return () => {
+      cancelled = true
+    }
+  }, [])
+
+  return {
+    subjects,
+    loading,
+    error,
+    refetch,
+  }
 }
-
-// ─── Mutations ───────────────────────────────────────────────────────────────
-
-export async function createBatch(data: Omit<Batch, '_id' | 'createdAt' | 'updatedAt'>) {
+export async function createBatch(
+  data: CreateBatchInput,
+) {
   return api.post<Batch>('/api/batches', data)
 }
-
-export async function updateBatch(id: string, data: Partial<Batch>) {
+export async function updateBatch(
+  id: string,
+  data: Partial<Batch>,
+) {
   return api.patch<Batch>(`/api/batches/${id}`, data)
 }
 
@@ -108,7 +198,10 @@ export async function createSubject(data: {
   return api.post<Subject>('/api/subjects', data)
 }
 
-export async function updateSubject(id: string, data: Partial<Subject>) {
+export async function updateSubject(
+  id: string,
+  data: Partial<Subject>,
+) {
   return api.patch<Subject>(`/api/subjects/${id}`, data)
 }
 
@@ -116,16 +209,30 @@ export async function deleteSubject(id: string) {
   return api.delete(`/api/subjects/${id}`)
 }
 
-export async function importStudentsDryRun(batchId: string, students: { name: string; email: string }[]) {
-  return api.post<{ willCreate: number; willSkip: number; skippedEmails: string[] }>(
-    '/api/students/import?dryRun=true',
-    { batchId, students },
-  )
+export async function importStudentsDryRun(
+  batchId: string,
+  students: { name: string; email: string }[],
+) {
+  return api.post<{
+    willCreate: number
+    willSkip: number
+    skippedEmails: string[]
+  }>('/api/students/import?dryRun=true', {
+    batchId,
+    students,
+  })
 }
 
-export async function importStudentsCommit(batchId: string, students: { name: string; email: string }[]) {
-  return api.post<{ created: number; skipped: number; enrollmentsCreated: number }>(
-    '/api/students/import',
-    { batchId, students },
-  )
+export async function importStudentsCommit(
+  batchId: string,
+  students: { name: string; email: string }[],
+) {
+  return api.post<{
+    created: number
+    skipped: number
+    enrollmentsCreated: number
+  }>('/api/students/import', {
+    batchId,
+    students,
+  })
 }
