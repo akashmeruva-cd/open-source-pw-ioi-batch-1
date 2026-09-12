@@ -33,3 +33,4 @@ test-results/
 # contents for each ("This file should not be edited" is in its own header).
 # Tracking it gave every contributor a phantom modified file.
 next-env.d.ts
+.env*
