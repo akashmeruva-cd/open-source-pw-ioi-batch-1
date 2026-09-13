@@ -11,8 +11,49 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
-  verify:
-    name: Lint, typecheck, test, build
+  typecheck:
+    name: TypeLink (Typecheck)
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+
+      # Turbo runs typecheck across every workspace and caches per package.
+      # Packages with "^build" dependencies build first automatically.
+      - name: Run TypeLink / TypeScript checks
+        run: npx turbo run typecheck
+
+  lint:
+    name: Lint
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+
+      # Turbo runs lint across every workspace and caches per package.
+      - name: Lint
+        run: npx turbo run lint
+
+  test:
+    name: Test
     runs-on: ubuntu-latest
     timeout-minutes: 20
 
@@ -24,16 +65,8 @@ jobs:
           node-version: 22
           cache: npm
 
-      - name: Install
+      - name: Install dependencies
         run: npm ci
-
-      # Turbo runs these across every workspace and caches per package, so a PR
-      # that only touches one app does not rebuild the other three.
-      - name: Lint
-        run: npx turbo run lint
-
-      - name: Typecheck
-        run: npx turbo run typecheck
 
       - name: Test
         run: npx turbo run test
@@ -41,5 +74,22 @@ jobs:
           # mongodb-memory-server downloads a real mongod on first run.
           MONGOMS_DOWNLOAD_DIR: ${{ runner.temp }}/mongodb-binaries
 
+  build:
+    name: Build
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+
       - name: Build
         run: npx turbo run build
+
