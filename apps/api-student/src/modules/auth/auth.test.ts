@@ -96,3 +96,109 @@ describe('brute-force protection', () => {
     expect(res.body.error.code).toBe('RATE_LIMITED')
   })
 })
+
+// ─── Member B tests ──────────────────────────────────────────────────────────
+
+describe('POST /api/auth/change-password', () => {
+  it('401s when called without a token', async () => {
+    await request(app)
+      .post('/api/auth/change-password')
+      .send({ oldPassword: 'old-pass-123', newPassword: 'new-pass-456' })
+      .expect(401)
+  })
+
+  it('422s when body is missing required fields', async () => {
+    const token = signTestToken({ sub: randomUUID(), role: 'STUDENT', email: 'a@college.edu' })
+    const res = await request(app)
+      .post('/api/auth/change-password')
+      .set('Authorization', `Bearer ${token}`)
+      .send({ newPassword: 'no-old-password' })
+      .expect(422)
+    expect(res.body.error.code).toBe('VALIDATION_ERROR')
+  })
+
+  it('422s when newPassword is too short', async () => {
+    const token = signTestToken({ sub: randomUUID(), role: 'STUDENT', email: 'a@college.edu' })
+    const res = await request(app)
+      .post('/api/auth/change-password')
+      .set('Authorization', `Bearer ${token}`)
+      .send({ oldPassword: 'correct-old-pass', newPassword: 'short' })
+      .expect(422)
+    expect(res.body.error.code).toBe('VALIDATION_ERROR')
+  })
+
+  it('rejects abuse: wrong old password or unknown user', async () => {
+    const token = signTestToken({ sub: randomUUID(), role: 'STUDENT', email: 'nobody@college.edu' })
+    const res = await request(app)
+      .post('/api/auth/change-password')
+      .set('Authorization', `Bearer ${token}`)
+      .send({ oldPassword: 'wrong-password', newPassword: 'valid-new-password123' })
+    
+    // 404 if user not found, 400 if user exists but wrong password. Both are safe rejections.
+    expect([400, 404]).toContain(res.status)
+  })
+})
+
+describe('GET /api/auth/sessions', () => {
+  it('401s when called without a token', async () => {
+    await request(app).get('/api/auth/sessions').expect(401)
+  })
+})
+
+describe('DELETE /api/auth/sessions', () => {
+  it('401s when called without a token', async () => {
+    await request(app).delete('/api/auth/sessions').expect(401)
+  })
+})
+
+describe('POST /api/auth/password-reset/request', () => {
+  it('422s when email is missing', async () => {
+    const res = await request(app)
+      .post('/api/auth/password-reset/request')
+      .send({})
+      .expect(422)
+    expect(res.body.error.code).toBe('VALIDATION_ERROR')
+  })
+
+  it('422s when email is malformed', async () => {
+    const res = await request(app)
+      .post('/api/auth/password-reset/request')
+      .send({ email: 'not-an-email' })
+      .expect(422)
+    expect(res.body.error.code).toBe('VALIDATION_ERROR')
+  })
+
+  it('returns 202 even for unknown emails to prevent enumeration abuse', async () => {
+    await request(app)
+      .post('/api/auth/password-reset/request')
+      .send({ email: 'nobody@college.edu' })
+      .expect(202)
+  })
+})
+
+describe('POST /api/auth/password-reset/confirm', () => {
+  it('422s when token or newPassword is missing', async () => {
+    const res = await request(app)
+      .post('/api/auth/password-reset/confirm')
+      .send({ token: 'some-token' }) // missing newPassword
+      .expect(422)
+    expect(res.body.error.code).toBe('VALIDATION_ERROR')
+  })
+
+  it('422s when newPassword is too short', async () => {
+    const res = await request(app)
+      .post('/api/auth/password-reset/confirm')
+      .send({ token: 'some-token', newPassword: 'short' })
+      .expect(422)
+    expect(res.body.error.code).toBe('VALIDATION_ERROR')
+  })
+
+  it('400s on abuse: invalid or already-used token', async () => {
+    const res = await request(app)
+      .post('/api/auth/password-reset/confirm')
+      .send({ token: 'fake-or-used-token', newPassword: 'valid-new-password123' })
+      .expect(400)
+    
+    expect(res.body.error.code).toBe('BAD_REQUEST')
+  })
+})

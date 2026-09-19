@@ -3,7 +3,13 @@ import rateLimit, { MemoryStore } from 'express-rate-limit'
 import { requireAuth } from '@repo/auth/middleware'
 import { asyncHandler } from '@repo/http/async-handler'
 import { validate } from '@repo/http/validate'
-import { loginSchema, registerSchema } from '@repo/validation/auth'
+import {
+  changePasswordSchema,
+  loginSchema,
+  passwordResetRequestSchema,
+  passwordResetSchema,
+  registerSchema,
+} from '@repo/validation/auth'
 import * as controller from './auth.controller'
 
 /** Owner: Team 03 — Auth & Identity. */
@@ -38,3 +44,29 @@ authRouter.post('/login', credentialsLimiter, validate(loginSchema), asyncHandle
 authRouter.post('/refresh', asyncHandler(controller.refresh))
 authRouter.post('/logout', asyncHandler(controller.logout))
 authRouter.get('/me', requireAuth, asyncHandler(controller.me))
+
+// ─── Member B: new routes ────────────────────────────────────────────────────
+
+// Public — rate-limited because anyone can call these unauthenticated.
+authRouter.post(
+  '/password-reset/request',
+  credentialsLimiter,
+  validate(passwordResetRequestSchema),
+  asyncHandler(controller.passwordResetRequest),
+)
+authRouter.post(
+  '/password-reset/confirm',
+  credentialsLimiter,
+  validate(passwordResetSchema),
+  asyncHandler(controller.passwordResetConfirm),
+)
+
+// Authenticated — user must be signed in.
+authRouter.post(
+  '/change-password',
+  requireAuth,
+  validate(changePasswordSchema),
+  asyncHandler(controller.changePassword),
+)
+authRouter.get('/sessions', requireAuth, asyncHandler(controller.sessions))
+authRouter.delete('/sessions', requireAuth, asyncHandler(controller.signOutEverywhere))
