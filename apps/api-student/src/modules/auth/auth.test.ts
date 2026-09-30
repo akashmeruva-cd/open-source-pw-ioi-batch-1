@@ -171,7 +171,7 @@ describe('POST /api/auth/password-reset/request', () => {
   it('returns 202 even for unknown emails to prevent enumeration abuse', async () => {
     await request(app)
       .post('/api/auth/password-reset/request')
-      .send({ email: 'nobody@college.edu' })
+      .send({ email: 'nobody@pwioi.com' })
       .expect(202)
   })
 })
