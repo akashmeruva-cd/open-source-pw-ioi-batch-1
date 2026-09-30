@@ -44,8 +44,9 @@ export async function registerUser(input: RegisterInput) {
   const supabase = getSupabaseAdmin()
 
   // Check domain restriction first
-  if (!input.email.endsWith('@college.edu')) {
-    throw HttpError.badRequest('Only @college.edu emails are allowed.')
+  const allowedDomain = process.env.ALLOWED_EMAIL_DOMAIN || '@pwioi.com'
+  if (!input.email.endsWith(allowedDomain)) {
+    throw HttpError.badRequest(`Only ${allowedDomain} emails are allowed.`)
   }
 
   // Check for existing profile
@@ -170,28 +171,21 @@ export async function getUserById(id: string) {
  * Always returns successfully — never reveals whether the email exists.
  */
 export async function requestReset(input: PasswordResetRequestInput): Promise<void> {
-  if (!input.email.endsWith('@college.edu')) {
-    throw HttpError.badRequest('Only @college.edu emails are allowed.')
+  const allowedDomain = process.env.ALLOWED_EMAIL_DOMAIN || '@pwioi.com'
+  if (!input.email.endsWith(allowedDomain)) {
+    throw HttpError.badRequest(`Only ${allowedDomain} emails are allowed.`)
   }
 
-  const db = getDb()
-  const emailDriver = getEmail()
+  const supabase = getSupabaseAdmin()
   const frontendUrl = process.env.STUDENT_PORTAL_URL || 'http://localhost:3000'
 
-  await requestPasswordReset(
-    input.email,
-    db,
-    { profiles, authTokens },
-    { eq },
-    async (email, token) => {
-      console.log(`<<<<<<<< RESET TOKEN FOR ${email}: ${token} >>>>>>>>`)
-      await emailDriver.send({
-        to: email,
-        subject: 'Reset your password',
-        text: `Click this link to reset your password: ${frontendUrl}/reset-password?token=${token}\n\nIf you did not request this, ignore this email.`,
-      })
-    },
-  )
+  const { error } = await supabase.auth.resetPasswordForEmail(input.email, {
+    redirectTo: `${frontendUrl}/reset-password`,
+  })
+
+  if (error) {
+    throw new HttpError(500, 'INTERNAL_ERROR', error.message)
+  }
 }
 
 /**
