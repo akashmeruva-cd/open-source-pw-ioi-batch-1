@@ -7,7 +7,6 @@ import {
   changePasswordSchema,
   loginSchema,
   passwordResetRequestSchema,
-  passwordResetSchema,
   registerSchema,
 } from '@repo/validation/auth'
 import * as controller from './auth.controller'
@@ -53,12 +52,6 @@ authRouter.post(
   credentialsLimiter,
   validate(passwordResetRequestSchema),
   asyncHandler(controller.passwordResetRequest),
-)
-authRouter.post(
-  '/password-reset/confirm',
-  credentialsLimiter,
-  validate(passwordResetSchema),
-  asyncHandler(controller.passwordResetConfirm),
 )
 
 // Authenticated — user must be signed in.

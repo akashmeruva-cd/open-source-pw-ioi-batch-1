@@ -1,16 +1,10 @@
-import { getEmail } from '@repo/services/email'
 import { HttpError } from '@repo/http/http-error'
 import { and, eq, getDb, getSupabaseAdmin } from '@repo/models/db'
 import { authTokens, profiles } from '@repo/models/schema'
-import {
-  changePassword,
-  requestPasswordReset,
-  resetPassword,
-} from '@repo/auth/password'
+import { changePassword } from '@repo/auth/password'
 import type {
   ChangePasswordInput,
   LoginInput,
-  PasswordResetInput,
   PasswordResetRequestInput,
   PublicUser,
   RegisterInput,
@@ -167,7 +161,7 @@ export async function getUserById(id: string) {
 // ─── Member B: new endpoints ────────────────────────────────────────────────
 
 /**
- * Initiates a password reset email for the given address.
+ * Initiates a password reset email for the given address via Supabase Mailer.
  * Always returns successfully — never reveals whether the email exists.
  */
 export async function requestReset(input: PasswordResetRequestInput): Promise<void> {
@@ -179,27 +173,16 @@ export async function requestReset(input: PasswordResetRequestInput): Promise<vo
   const supabase = getSupabaseAdmin()
   const frontendUrl = process.env.STUDENT_PORTAL_URL || 'http://localhost:3000'
 
-  const { error } = await supabase.auth.resetPasswordForEmail(input.email, {
-    redirectTo: `${frontendUrl}/reset-password`,
-  })
-
-  if (error) {
-    throw new HttpError(500, 'INTERNAL_ERROR', error.message)
-  }
-}
-
-/**
- * Confirms a password reset using the single-use token from the email link.
- */
-export async function confirmReset(input: PasswordResetInput): Promise<void> {
-  const db = getDb()
-  const supabase = getSupabaseAdmin()
   try {
-    await resetPassword(input.token, input.newPassword, db, { authTokens }, { eq, and }, supabase)
+    const { error } = await supabase.auth.resetPasswordForEmail(input.email, {
+      redirectTo: `${frontendUrl}/reset-password`,
+    })
+
+    if (error) {
+      console.warn('Supabase resetPasswordForEmail notice:', error.message)
+    }
   } catch (err) {
-    console.error('Password reset failed:', err)
-    // Map internal error strings to an HttpError so the controller stays clean.
-    throw HttpError.badRequest('Invalid or expired reset token')
+    console.warn('Supabase resetPasswordForEmail error:', err)
   }
 }
 

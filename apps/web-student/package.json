@@ -14,6 +14,7 @@
     "@repo/client": "*",
     "@repo/ui": "*",
     "@repo/validation": "*",
+    "@supabase/supabase-js": "^2.112.4",
     "dotenv": "^16.4.7",
     "next": "^16.3.1",
     "react": "^19.0.0",
