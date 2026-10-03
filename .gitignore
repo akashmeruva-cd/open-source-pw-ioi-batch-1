@@ -18,7 +18,6 @@ npm-debug.log*
 !.vscode/extensions.json
 .idea/
 
-.vercel
 *.tsbuildinfo
 playwright-report/
 test-results/
