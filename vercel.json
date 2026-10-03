@@ -1,0 +1,22 @@
+{
+  "$schema": "https://openapi.vercel.sh/vercel.json",
+  "services": {
+    "api-admin": {
+      "root": "apps/api-admin",
+      "framework": "express"
+    },
+    "api-student": {
+      "root": "apps/api-student",
+      "framework": "express"
+    },
+    "web-admin": {
+      "root": "apps/web-admin",
+      "framework": "nextjs"
+    },
+    "web-student": {
+      "root": "apps/web-student",
+      "framework": "nextjs"
+    }
+  },
+  "rewrites": []
+}
