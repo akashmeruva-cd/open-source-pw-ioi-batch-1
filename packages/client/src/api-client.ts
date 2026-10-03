@@ -65,17 +65,22 @@ export function createApiClient(baseUrl: string) {
 
   /** Attempts a silent token refresh. Returns true if a new token was obtained. */
   async function refreshAccessToken(): Promise<boolean> {
-    const res = await fetch(`${baseUrl}/api/auth/refresh`, {
-      method: 'POST',
-      credentials: 'include',
-    })
-    if (!res.ok) {
+    try {
+      const res = await fetch(`${baseUrl}/api/auth/refresh`, {
+        method: 'POST',
+        credentials: 'include',
+      })
+      if (!res.ok) {
+        accessToken = null
+        return false
+      }
+      const data = (await res.json()) as { accessToken: string }
+      accessToken = data.accessToken
+      return true
+    } catch {
       accessToken = null
       return false
     }
-    const data = (await res.json()) as { accessToken: string }
-    accessToken = data.accessToken
-    return true
   }
 
   async function apiFetch<T>(path: string, init: RequestInit = {}): Promise<T> {

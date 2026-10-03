@@ -1,10 +1,9 @@
 import type { CookieOptions, Request, Response } from 'express'
 import { currentUser } from '@repo/auth/middleware'
 import { HttpError } from '@repo/http/http-error'
-import type { ChangePasswordInput, LoginInput, PasswordResetInput, PasswordResetRequestInput, RegisterInput } from '@repo/validation/auth'
+import type { ChangePasswordInput, LoginInput, PasswordResetRequestInput, RegisterInput } from '@repo/validation/auth'
 import {
   changeUserPassword,
-  confirmReset,
   endSession,
   getUserById,
   listSessions,
@@ -74,11 +73,6 @@ export async function passwordResetRequest(req: Request, res: Response) {
   await requestReset(req.body as PasswordResetRequestInput)
   // Always 202 — never reveal whether the email exists.
   res.status(202).json({ message: 'If that email is registered, a reset link has been sent.' })
-}
-
-export async function passwordResetConfirm(req: Request, res: Response) {
-  await confirmReset(req.body as PasswordResetInput)
-  res.status(200).json({ message: 'Password updated. Please sign in again.' })
 }
 
 export async function changePassword(req: Request, res: Response) {

@@ -175,30 +175,3 @@ describe('POST /api/auth/password-reset/request', () => {
       .expect(202)
   })
 })
-
-describe('POST /api/auth/password-reset/confirm', () => {
-  it('422s when token or newPassword is missing', async () => {
-    const res = await request(app)
-      .post('/api/auth/password-reset/confirm')
-      .send({ token: 'some-token' }) // missing newPassword
-      .expect(422)
-    expect(res.body.error.code).toBe('VALIDATION_ERROR')
-  })
-
-  it('422s when newPassword is too short', async () => {
-    const res = await request(app)
-      .post('/api/auth/password-reset/confirm')
-      .send({ token: 'some-token', newPassword: 'short' })
-      .expect(422)
-    expect(res.body.error.code).toBe('VALIDATION_ERROR')
-  })
-
-  it('400s on abuse: invalid or already-used token', async () => {
-    const res = await request(app)
-      .post('/api/auth/password-reset/confirm')
-      .send({ token: 'fake-or-used-token', newPassword: 'valid-new-password123' })
-      .expect(400)
-    
-    expect(res.body.error.code).toBe('BAD_REQUEST')
-  })
-})
