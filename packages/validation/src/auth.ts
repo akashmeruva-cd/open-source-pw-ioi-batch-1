@@ -31,3 +31,20 @@ export const authResponseSchema = z.object({
   accessToken: z.string(),
 })
 export type AuthResponse = z.infer<typeof authResponseSchema>
+
+export const passwordResetRequestSchema = z.object({
+  email: z.string().email().toLowerCase(),
+})
+export type PasswordResetRequestInput = z.infer<typeof passwordResetRequestSchema>
+
+export const passwordResetSchema = z.object({
+  token: z.string().min(1),
+  newPassword: z.string().min(8).max(128),
+})
+export type PasswordResetInput = z.infer<typeof passwordResetSchema>
+
+export const changePasswordSchema = z.object({
+  oldPassword: z.string().min(1),
+  newPassword: z.string().min(8).max(128),
+})
+export type ChangePasswordInput = z.infer<typeof changePasswordSchema>

@@ -455,3 +455,24 @@ export const conversationMessages = pgTable(
   },
   (t) => [index('conversation_messages_conversation_idx').on(t.conversationId, t.createdAt)],
 )
+
+// ─── Auth Tokens ────────────────────────────────────────────────────────────
+
+/** Owner: Team 03 — Auth & Identity. Used for refresh tokens and password resets. */
+export const authTokens = pgTable(
+  'auth_tokens',
+  {
+    id: uuid('id').defaultRandom().primaryKey(),
+    userId: uuid('user_id')
+      .notNull()
+      .references(() => profiles.id, { onDelete: 'cascade' }),
+    type: text('type').notNull(), // 'REFRESH' or 'PASSWORD_RESET'
+    tokenHash: text('token_hash').notNull().unique(), // SHA-256 of the token
+    expiresAt: timestamp('expires_at', { withTimezone: true }).notNull(),
+    createdAt: timestamp('created_at', { withTimezone: true }).notNull().defaultNow(),
+  },
+  (t) => [
+    index('auth_tokens_user_idx').on(t.userId),
+    index('auth_tokens_hash_idx').on(t.tokenHash),
+  ],
+)

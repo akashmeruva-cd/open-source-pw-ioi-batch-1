@@ -1,7 +1,20 @@
+import { getEmail } from '@repo/services/email'
 import { HttpError } from '@repo/http/http-error'
-import { eq, getDb, getSupabaseAdmin } from '@repo/models/db'
-import { profiles } from '@repo/models/schema'
-import type { LoginInput, PublicUser, RegisterInput } from '@repo/validation/auth'
+import { and, eq, getDb, getSupabaseAdmin } from '@repo/models/db'
+import { authTokens, profiles } from '@repo/models/schema'
+import {
+  changePassword,
+  requestPasswordReset,
+  resetPassword,
+} from '@repo/auth/password'
+import type {
+  ChangePasswordInput,
+  LoginInput,
+  PasswordResetInput,
+  PasswordResetRequestInput,
+  PublicUser,
+  RegisterInput,
+} from '@repo/validation/auth'
 import type { Role } from '@repo/validation/enums'
 
 /**
@@ -30,7 +43,13 @@ export async function registerUser(input: RegisterInput) {
   const db = getDb()
   const supabase = getSupabaseAdmin()
 
-  // Check for existing profile first
+  // Check domain restriction first
+  const allowedDomain = process.env.ALLOWED_EMAIL_DOMAIN || '@pwioi.com'
+  if (!input.email.endsWith(allowedDomain)) {
+    throw HttpError.badRequest(`Only ${allowedDomain} emails are allowed.`)
+  }
+
+  // Check for existing profile
   const existing = await db.select().from(profiles).where(eq(profiles.email, input.email)).limit(1)
   if (existing.length > 0) {
     throw HttpError.conflict('An account with this email already exists')
@@ -143,4 +162,92 @@ export async function getUserById(id: string) {
 
   if (!profile || !profile.isActive) throw HttpError.notFound('User not found')
   return toPublicUser(profile)
+}
+
+// ─── Member B: new endpoints ────────────────────────────────────────────────
+
+/**
+ * Initiates a password reset email for the given address.
+ * Always returns successfully — never reveals whether the email exists.
+ */
+export async function requestReset(input: PasswordResetRequestInput): Promise<void> {
+  const allowedDomain = process.env.ALLOWED_EMAIL_DOMAIN || '@pwioi.com'
+  if (!input.email.endsWith(allowedDomain)) {
+    throw HttpError.badRequest(`Only ${allowedDomain} emails are allowed.`)
+  }
+
+  const supabase = getSupabaseAdmin()
+  const frontendUrl = process.env.STUDENT_PORTAL_URL || 'http://localhost:3000'
+
+  const { error } = await supabase.auth.resetPasswordForEmail(input.email, {
+    redirectTo: `${frontendUrl}/reset-password`,
+  })
+
+  if (error) {
+    throw new HttpError(500, 'INTERNAL_ERROR', error.message)
+  }
+}
+
+/**
+ * Confirms a password reset using the single-use token from the email link.
+ */
+export async function confirmReset(input: PasswordResetInput): Promise<void> {
+  const db = getDb()
+  const supabase = getSupabaseAdmin()
+  try {
+    await resetPassword(input.token, input.newPassword, db, { authTokens }, { eq, and }, supabase)
+  } catch (err) {
+    console.error('Password reset failed:', err)
+    // Map internal error strings to an HttpError so the controller stays clean.
+    throw HttpError.badRequest('Invalid or expired reset token')
+  }
+}
+
+/**
+ * Changes the password of an already-authenticated user.
+ * Keeps the current session alive but revokes all others.
+ */
+export async function changeUserPassword(
+  userId: string,
+  input: ChangePasswordInput,
+): Promise<void> {
+  const db = getDb()
+  const supabase = getSupabaseAdmin()
+
+  // Fetch email — needed by Member A's changePassword to re-verify the old password.
+  const [profile] = await db.select().from(profiles).where(eq(profiles.id, userId)).limit(1)
+  if (!profile) throw HttpError.notFound('User not found')
+
+  try {
+    await changePassword(
+      userId,
+      profile.email as string,
+      input.oldPassword,
+      input.newPassword,
+      db,
+      { authTokens },
+      { eq, and },
+      supabase,
+    )
+  } catch {
+    throw HttpError.badRequest('Invalid old password')
+  }
+}
+
+/** Returns all active auth_tokens of type REFRESH for the current user. */
+export async function listSessions(userId: string) {
+  const db = getDb()
+  const rows = await db
+    .select({ id: authTokens.id, createdAt: authTokens.createdAt, expiresAt: authTokens.expiresAt })
+    .from(authTokens)
+    .where(and(eq(authTokens.userId, userId), eq(authTokens.type, 'REFRESH')))
+  return rows
+}
+
+/** Signs the user out of every device by deleting all REFRESH tokens. */
+export async function revokeAllSessions(userId: string): Promise<void> {
+  const db = getDb()
+  await db
+    .delete(authTokens)
+    .where(and(eq(authTokens.userId, userId), eq(authTokens.type, 'REFRESH')))
 }
